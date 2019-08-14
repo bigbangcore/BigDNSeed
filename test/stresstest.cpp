@@ -20,8 +20,8 @@ CStressTestConfig::CStressTestConfig()
     fTestNet = false;
     fDebug = false;
     nMagicNum = MAINNET_MAGICNUM;
-    tNetCfg.tListenEpIPV4.SetAddrPort("0.0.0.0", 6817);
-    tNetCfg.tListenEpIPV6.SetAddrPort("::", 6817);
+    tNetCfg.tListenEpIPV4.SetAddrPort("0.0.0.0", 9917);
+    tNetCfg.tListenEpIPV6.SetAddrPort("::", 9917);
 
     sLocalIpaddr = "127.0.0.1";
     iLocalIpType = CMthNetIp::MNI_IPV4;
@@ -30,7 +30,7 @@ CStressTestConfig::CStressTestConfig()
     nPerPortCount = 1;
 
     sConnectIpaddr = "127.0.0.1";
-    nConnectPort = 6819;
+    nConnectPort = 9906;
     nPerConnectCount = 1;
     nMaxConnectCount = 1;
 
