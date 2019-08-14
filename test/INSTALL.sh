@@ -35,14 +35,12 @@ if [ "$os" == "Darwin" ]; then
     echo "make install -j${cores}"
     make install -j${cores}
 else
-    #cores=`nproc --all`
-    #if [ "${cores}" == "" ]; then
-    #    cores = 1
-    #fi
-    #echo "make -j${cores}"
-    #make -j${cores}
-    echo "make -j2"
-    make -j2
+    cores=`nproc --all`
+    if [ "${cores}" == "" ]; then
+        cores = 1
+    fi
+    echo "make -j${cores}"
+    make -j${cores}
 
     if [ $? == 0 ]; then
         echo "sudo make install"
