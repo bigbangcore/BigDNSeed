@@ -6,7 +6,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #------------------------------------------------------------------------------
 
-project(BigDNSeed LANGUAGES CXX)
+project(bigdnseed LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5.1)
 
@@ -63,9 +63,9 @@ set(sources
         main.cpp
         )
 
-add_executable(BigDNSeed ${sources})
+add_executable(bigdnseed ${sources})
 
-target_link_libraries(BigDNSeed
+target_link_libraries(bigdnseed
         blockhead
         network
         nbase
@@ -74,7 +74,7 @@ target_link_libraries(BigDNSeed
         crypto
         )
 
-target_link_libraries(BigDNSeed
+target_link_libraries(bigdnseed
         Boost::system
         Boost::filesystem
         Boost::program_options
@@ -86,5 +86,5 @@ target_link_libraries(BigDNSeed
         OpenSSL::Crypto
         )
 
-INSTALL(TARGETS BigDNSeed RUNTIME DESTINATION bin)
+INSTALL(TARGETS bigdnseed RUNTIME DESTINATION bin)
 

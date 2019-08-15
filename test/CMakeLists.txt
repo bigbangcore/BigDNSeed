@@ -6,7 +6,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #------------------------------------------------------------------------------
 
-project(BigDNSeed_test LANGUAGES CXX)
+project(bigdnseed_test LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5.1)
 
@@ -80,9 +80,9 @@ set(sources
         ../dnseed/netproto.cpp ../dnseed/netproto.h
         )
 
-add_executable(BigDNSeed_test ${sources})
+add_executable(bigdnseed_test ${sources})
 
-target_link_libraries(BigDNSeed_test
+target_link_libraries(bigdnseed_test
         Boost::system
         Boost::filesystem
         Boost::program_options
@@ -96,5 +96,5 @@ target_link_libraries(BigDNSeed_test
 	    ${sodium_LIBRARY_RELEASE}
         )
 
-INSTALL(TARGETS BigDNSeed_test RUNTIME DESTINATION bin)
+INSTALL(TARGETS bigdnseed_test RUNTIME DESTINATION bin)
 
