@@ -134,17 +134,6 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
     po::store(po::command_line_parser(argc, argv).options(defaultDesc).style(defaultCmdStyle).extra_parser(CDnseedConfig::ExtraParser).run(), vm);
     po::notify(vm);
 
-    if (strGenesisBlockHash.empty())
-    {
-        cout << "genesisblock is empty!" << endl;
-        return false;
-    }
-    if (hashGenesisBlock.SetHex(strGenesisBlockHash) != strGenesisBlockHash.size())
-    {
-        cout << "genesisblock is error!" << endl;
-        return false;
-    }
-
     if (vm.count("trustaddress"))
     {
         for (auto& str : vm["trustaddress"].as<std::vector<std::string>>())
@@ -185,6 +174,17 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
     }
 
     //----------------------------------------------------------------------------------------------------------
+    if (strGenesisBlockHash.empty())
+    {
+        cout << "genesisblock is empty!" << endl;
+        return false;
+    }
+    if (hashGenesisBlock.SetHex(strGenesisBlockHash) != strGenesisBlockHash.size())
+    {
+        cout << "genesisblock is error!" << endl;
+        return false;
+    }
+
     tNetCfg.tListenEpIPV4.SetAddrPort(strDNSeedListenAddrV4, usDNSeedListenPort);
     tNetCfg.tListenEpIPV6.SetAddrPort(strDNSeedListenAddrV6, usDNSeedListenPort);
     nMagicNum = (fTestNet ? TESTNET_MAGICNUM : MAINNET_MAGICNUM);
@@ -243,6 +243,7 @@ void CDnseedConfig::ListConfig()
     cout << "workdir: " << sWorkDir << endl;
     cout << "workthreadcount: " << nWorkThreadCount << endl;
     cout << "allowalladdr: " << (fAllowAllAddr ? "true" : "false") << endl;
+    cout << "genesisblock: " << hashGenesisBlock.GetHex() << endl;
     cout << "dbhost: " << tDbCfg.sDbIp << endl;
     cout << "dbport: " << tDbCfg.usDbPort << endl;
     cout << "dbname: " << tDbCfg.sDbName << endl;
