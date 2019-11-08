@@ -5,11 +5,13 @@
 #ifndef __DNSEED_CONFIG_H
 #define __DNSEED_CONFIG_H
 
-#include "blockhead/type.h"
-#include "dbc/dbcacc.h"
-#include "network/networkbase.h"
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+
+#include "blockhead/type.h"
+#include "crypto/uint256.h"
+#include "dbc/dbcacc.h"
+#include "network/networkbase.h"
 
 namespace dnseed
 {
@@ -18,8 +20,7 @@ using namespace std;
 using namespace dbc;
 using namespace network;
 
-
-#define NMS_CFG_LISTEN_PORT  9906
+#define NMS_CFG_LISTEN_PORT 9906
 #define NMS_ATP_MAX_ADDR_SCORE 100
 #define NMS_ATP_MIN_ADDR_SCORE -200
 #define NMS_ATP_GOOD_ADDR_SCORE 10
@@ -29,7 +30,6 @@ using namespace network;
 #define NMS_ATP_HEIGHT_DIFF_RANGE 20
 #define NMS_ATP_GET_GOOD_ADDR_COUNT 8
 #define NMS_ATP_TEST_ADDR_COUNT 30
-
 
 class CNetConfig
 {
@@ -48,15 +48,15 @@ public:
     CDnseedConfig();
     ~CDnseedConfig();
 
-    bool ReadConfig(int argc, char *argv[], 
-        const boost::filesystem::path& pathDefault, const std::string& strConfile);
+    bool ReadConfig(int argc, char* argv[],
+                    const boost::filesystem::path& pathDefault, const std::string& strConfile);
     void ListConfig();
     void Help();
 
 private:
-    bool TokenizeConfile(const char *pzConfile,vector<string>& tokens);
+    bool TokenizeConfile(const char* pzConfile, vector<string>& tokens);
     void AddToken(string& sIn, vector<string>& tokens);
-    static std::pair<std::string,std::string> ExtraParser(const std::string& s);
+    static std::pair<std::string, std::string> ExtraParser(const std::string& s);
 
 public:
     CDbcConfig tDbCfg;
@@ -64,9 +64,9 @@ public:
 
     bool fStop;
 
-	bool fTestNet;
-	bool fVersion;
-	bool fPurge;
+    bool fTestNet;
+    bool fVersion;
+    bool fPurge;
 
     bool fDebug;
     bool fHelp;
@@ -87,6 +87,8 @@ public:
 
     bool fShowDbStatData;
     uint32 nShowDbStatTime;
+
+    uint256 hashGenesisBlock;
 
     //-----------------------------------------------------------
     boost::filesystem::path pathRoot;
@@ -173,4 +175,3 @@ public:
 } //namespace dnseed
 
 #endif //__DNSEED_CONFIG_H
-

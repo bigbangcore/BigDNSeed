@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "netpeer.h"
+
 #include "netmsgwork.h"
 #include "version.h"
 
@@ -11,12 +12,11 @@ using boost::asio::ip::tcp;
 namespace dnseed
 {
 
-
 //-----------------------------------------------------------------------------------------------
-CNetPeer::CNetPeer(CMsgWorkThread *pMsgWorkThreadIn, CBbAddrPool *pBbAddrPoolIn, uint32 nMsgMagicIn, 
-    bool fInBoundIn, uint64 nNetIdIn, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, bool fAllowAllAddrIn) : 
-    pMsgWorkThread(pMsgWorkThreadIn),pBbAddrPool(pBbAddrPoolIn),nMsgMagic(nMsgMagicIn),
-    fInBound(fInBoundIn),nPeerNetId(nNetIdIn),tPeerEp(tPeerEpIn),tLocalEp(tLocalEpIn),fPeerAllowAllAddr(fAllowAllAddrIn)
+CNetPeer::CNetPeer(CMsgWorkThread* pMsgWorkThreadIn, CBbAddrPool* pBbAddrPoolIn, uint32 nMsgMagicIn,
+                   bool fInBoundIn, uint64 nNetIdIn, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, bool fAllowAllAddrIn)
+  : pMsgWorkThread(pMsgWorkThreadIn), pBbAddrPool(pBbAddrPoolIn), nMsgMagic(nMsgMagicIn),
+    fInBound(fInBoundIn), nPeerNetId(nNetIdIn), tPeerEp(tPeerEpIn), tLocalEp(tLocalEpIn), fPeerAllowAllAddr(fAllowAllAddrIn)
 {
     nVersion = 0;
     nService = 0;
@@ -42,9 +42,9 @@ CNetPeer::~CNetPeer()
 {
 }
 
-bool CNetPeer::DoRecvPacket(CMthNetPackData *pPackData)
+bool CNetPeer::DoRecvPacket(CMthNetPackData* pPackData)
 {
-    if (pPackData == NULL || pPackData->GetDataBuf() == NULL || pPackData->GetDataLen() == 0 )
+    if (pPackData == NULL || pPackData->GetDataBuf() == NULL || pPackData->GetDataLen() == 0)
     {
         blockhead::StdError(__PRETTY_FUNCTION__, "Param error.");
         return false;
@@ -83,7 +83,6 @@ bool CNetPeer::DoOutBoundConnectSuccess(CMthNetEndpoint& tLocalEpIn)
     return true;
 }
 
-
 //------------------------------------------------------------------------------------
 bool CNetPeer::DoPacket()
 {
@@ -92,7 +91,8 @@ bool CNetPeer::DoPacket()
     {
     case BBPROTO_CMD_HELLO:
     {
-        try{
+        try
+        {
             blockhead::StdDebug("CFLOW", "Recv msg: BBPROTO_CMD_HELLO");
             if (nVersion != 0)
             {
@@ -108,7 +108,8 @@ bool CNetPeer::DoPacket()
             }
 
             int64 nTime;
-            ssPayload >> nVersion >> nService >> nTime >> nNonceFrom >> strSubVer >> nStartingHeight;
+            uint256 hashRecvGenesisBlock;
+            ssPayload >> nVersion >> nService >> nTime >> nNonceFrom >> strSubVer >> nStartingHeight >> hashRecvGenesisBlock;
             nTimeDelta = nTime - nTimeRecv;
 
             if (STD_DEBUG)
@@ -239,8 +240,7 @@ bool CNetPeer::DoPacket()
 
         for (vector<CAddress>::iterator it = vAddrList.begin(); it != vAddrList.end(); ++it)
         {
-            if (((*it).nService & NODE_NETWORK) == NODE_NETWORK && 
-                (fPeerAllowAllAddr || (*it).ssEndpoint.IsRoutable()))
+            if (((*it).nService & NODE_NETWORK) == NODE_NETWORK && (fPeerAllowAllAddr || (*it).ssEndpoint.IsRoutable()))
             {
                 tcp::endpoint ep;
                 (*it).ssEndpoint.GetEndpoint(ep);
@@ -288,7 +288,6 @@ bool CNetPeer::DoPacket()
 
     return true;
 }
-
 
 void CNetPeer::ModifyPeerState(DNP_E_PEER_STATE eState)
 {
@@ -391,7 +390,6 @@ bool CNetPeer::DoStateTimer(time_t tmCurTime)
     return true;
 }
 
-
 //-----------------------------------------------------------------------------------
 bool CNetPeer::SendMsgHello()
 {
@@ -404,7 +402,7 @@ bool CNetPeer::SendMsgHello()
     uint64 nNonce = nPeerNetId;
     int64 nTime = pBbAddrPool->GetNetTime();
     int nHeight = pBbAddrPool->GetConfidentHeight();
-    ssPayload << iLocalVersion << nLocalService << nTime << nNonce << strLocalSubVer << nHeight; 
+    ssPayload << iLocalVersion << nLocalService << nTime << nNonce << strLocalSubVer << nHeight << pBbAddrPool->GetGenesisBlockHash();
 
     nSendHelloTime = GetTime();
     return SendMessage(BBPROTO_CHN_NETWORK, BBPROTO_CMD_HELLO, ssPayload);
@@ -440,5 +438,4 @@ bool CNetPeer::SendMsgAddress()
     return SendMessage(BBPROTO_CHN_NETWORK, BBPROTO_CMD_ADDRESS, ssPayload);
 }
 
-}  // namespace dnseed
-
+} // namespace dnseed

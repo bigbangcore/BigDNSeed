@@ -5,12 +5,11 @@
 #ifndef __DNSEED_ADDRPOOL_H
 #define __DNSEED_ADDRPOOL_H
 
-#include "network/networkbase.h"
 #include "blockhead/nettime.h"
+#include "config.h"
 #include "nbase/mthbase.h"
 #include "netproto.h"
-#include "config.h"
-
+#include "network/networkbase.h"
 
 namespace dnseed
 {
@@ -19,8 +18,6 @@ using namespace std;
 using namespace nbase;
 using namespace network;
 using namespace blockhead;
-
-
 
 class CAddrTestParam
 {
@@ -55,6 +52,7 @@ public:
 class CBbAddr
 {
     friend class CBbAddrPool;
+
 public:
     CBbAddr();
     ~CBbAddr() {}
@@ -64,9 +62,18 @@ public:
     bool GetAddress(CAddress& tAddr);
     bool GetAddress(tcp::endpoint& ep, uint64& nServiceOut, int& iScoreOut);
 
-    CMthNetEndpoint& GetEp() {return tNetEp;}
-    int GetScore() const {return iScore;}
-    uint64 GetService() const {return nService;}
+    CMthNetEndpoint& GetEp()
+    {
+        return tNetEp;
+    }
+    int GetScore() const
+    {
+        return iScore;
+    }
+    uint64 GetService() const
+    {
+        return nService;
+    }
 
     void DoScore(int iDoValue);
     void DoScoreByHeight(int nRefHeight);
@@ -96,38 +103,40 @@ class CDbStorage;
 class CBbAddrPool
 {
 public:
-    CBbAddrPool(CDnseedConfig *pCfg);
+    CBbAddrPool(CDnseedConfig* pCfg);
     ~CBbAddrPool();
 
     void SetDbStorage(CDbStorage* pDbs);
     bool SetTrustAddr(set<string>& setTrustAddrIn);
 
     bool AddConfidentAddr(string& sAddr);
-    bool AddAddrFromDb(CMthNetEndpoint &ep, uint64 nService, int iScore);
+    bool AddAddrFromDb(CMthNetEndpoint& ep, uint64 nService, int iScore);
     bool AddRecvAddr(tcp::endpoint& ep, uint64 nServiceIn);
-    void DelAddr(CMthNetEndpoint &ep);
-    void DelAddr(CBbAddr &addr);
+    void DelAddr(CMthNetEndpoint& ep);
+    void DelAddr(CBbAddr& addr);
 
-    bool QueryAddr(CMthNetEndpoint &ep, CBbAddr& addr);
-    bool DoScore(CMthNetEndpoint &ep, int iDoValue);
+    bool QueryAddr(CMthNetEndpoint& ep, CBbAddr& addr);
+    bool DoScore(CMthNetEndpoint& ep, int iDoValue);
     bool DoScore(CBbAddr& addr, int iDoValue);
-    bool UpdateHeight(CMthNetEndpoint &ep, int iHeight);
+    bool UpdateHeight(CMthNetEndpoint& ep, int iHeight);
 
     void GetGoodAddressList(vector<CAddress>& vAddrList);
     bool GetCallConnectAddrList(vector<CBbAddr>& vBbAddr, uint32 nGetAddrCount, bool fStressTest);
 
     int64 GetNetTime();
-    bool UpdateNetTime(const boost::asio::ip::address& address,int64 nTimeDelta);
+    bool UpdateNetTime(const boost::asio::ip::address& address, int64 nTimeDelta);
 
     void SetConfidentHeight(uint32 nHeight);
     uint32 GetConfidentHeight();
+
+    const uint256& GetGenesisBlockHash();
 
 protected:
     void ReleaseAddrPool();
     CBbAddr* GetAddrNoLock(const string& sAddrPort);
 
 private:
-    CDnseedConfig *pDnseedCfg;
+    CDnseedConfig* pDnseedCfg;
 
     map<string, CBbAddr*> mapAddrPool;
     set<string> setConfidentAddrPool;
@@ -144,6 +153,6 @@ private:
     string sPrevTestAddr;
 };
 
-}  // namespace dnseed
+} // namespace dnseed
 
 #endif //__DNSEED_ADDRPOOL_H

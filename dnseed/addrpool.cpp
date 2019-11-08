@@ -3,8 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "addrpool.h"
-#include "dbstorage.h"
 
+#include "dbstorage.h"
 
 using namespace std;
 using namespace blockhead;
@@ -85,7 +85,7 @@ void CBbAddr::DoScoreByHeight(int nRefHeight)
     if (fConfidentAddr)
     {
         iScore = NMS_ATP_MAX_ADDR_SCORE;
-        return ;
+        return;
     }
     int iDiff = abs(nStartingHeight - nRefHeight);
     if (iDiff <= NMS_ATP_HEIGHT_DIFF_RANGE)
@@ -96,7 +96,7 @@ void CBbAddr::DoScoreByHeight(int nRefHeight)
         }
         else
         {
-            DoScore(iDiff*10/NMS_ATP_HEIGHT_DIFF_RANGE);
+            DoScore(iDiff * 10 / NMS_ATP_HEIGHT_DIFF_RANGE);
         }
     }
     else
@@ -108,23 +108,21 @@ void CBbAddr::DoScoreByHeight(int nRefHeight)
         else
         {
             iDiff = (iDiff - NMS_ATP_HEIGHT_DIFF_RANGE) / 10;
-            DoScore(-(iDiff*10/NMS_ATP_HEIGHT_DIFF_RANGE));
+            DoScore(-(iDiff * 10 / NMS_ATP_HEIGHT_DIFF_RANGE));
         }
     }
 }
 
-
 //-------------------------------------------------------------------------
-CBbAddrPool::CBbAddrPool(CDnseedConfig *pCfg) : pDnseedCfg(pCfg), pDbStorage(NULL)
+CBbAddrPool::CBbAddrPool(CDnseedConfig* pCfg)
+  : pDnseedCfg(pCfg), pDbStorage(NULL)
 {
-
 }
 
 CBbAddrPool::~CBbAddrPool()
 {
     ReleaseAddrPool();
 }
-
 
 void CBbAddrPool::SetDbStorage(CDbStorage* pDbs)
 {
@@ -155,7 +153,7 @@ bool CBbAddrPool::AddConfidentAddr(string& sAddr)
     CBbAddr* pBbAddr = GetAddrNoLock(strAddr);
     if (pBbAddr == NULL)
     {
-        CBbAddr *pBbAddr = new CBbAddr();
+        CBbAddr* pBbAddr = new CBbAddr();
         pBbAddr->tNetEp = ep;
         pBbAddr->fConfidentAddr = true;
         pBbAddr->nService = NODE_NETWORK;
@@ -185,14 +183,14 @@ bool CBbAddrPool::AddConfidentAddr(string& sAddr)
     return true;
 }
 
-bool CBbAddrPool::AddAddrFromDb(CMthNetEndpoint &ep, uint64 nService, int iScore)
+bool CBbAddrPool::AddAddrFromDb(CMthNetEndpoint& ep, uint64 nService, int iScore)
 {
     boost::unique_lock<boost::shared_mutex> lock(lockAddrPool);
     string strAddr = ep.ToString();
     CBbAddr* pBbAddr = GetAddrNoLock(strAddr);
     if (pBbAddr == NULL)
     {
-        CBbAddr *pBbAddr = new CBbAddr();
+        CBbAddr* pBbAddr = new CBbAddr();
         pBbAddr->tNetEp = ep;
         pBbAddr->nService = nService;
         pBbAddr->iScore = iScore;
@@ -218,7 +216,7 @@ bool CBbAddrPool::AddRecvAddr(tcp::endpoint& ep, uint64 nServiceIn)
     CBbAddr* pBbAddr = GetAddrNoLock(strAddr);
     if (pBbAddr == NULL)
     {
-        CBbAddr *pBbAddr = new CBbAddr();
+        CBbAddr* pBbAddr = new CBbAddr();
         pBbAddr->tNetEp = tEp;
         pBbAddr->nService = nServiceIn;
         if (!mapAddrPool.insert(make_pair(strAddr, pBbAddr)).second)
@@ -228,8 +226,8 @@ bool CBbAddrPool::AddRecvAddr(tcp::endpoint& ep, uint64 nServiceIn)
         }
         if (pDbStorage)
         {
-            CDNSeedNode* pNode = new CDNSeedNode(DDN_E_MSG_TYPE_INSERT, pBbAddr->GetEp().GetIp(), pBbAddr->GetEp().GetPort(), 
-                pBbAddr->GetService(), pBbAddr->GetScore());
+            CDNSeedNode* pNode = new CDNSeedNode(DDN_E_MSG_TYPE_INSERT, pBbAddr->GetEp().GetIp(), pBbAddr->GetEp().GetPort(),
+                                                 pBbAddr->GetService(), pBbAddr->GetScore());
             lock.unlock();
             if (pNode)
             {
@@ -244,8 +242,8 @@ bool CBbAddrPool::AddRecvAddr(tcp::endpoint& ep, uint64 nServiceIn)
             pBbAddr->nService = nServiceIn;
             if (pDbStorage)
             {
-                CDNSeedNode* pNode = new CDNSeedNode(DDN_E_MSG_TYPE_UPDATE, pBbAddr->GetEp().GetIp(), pBbAddr->GetEp().GetPort(), 
-                    pBbAddr->GetService(), pBbAddr->GetScore());
+                CDNSeedNode* pNode = new CDNSeedNode(DDN_E_MSG_TYPE_UPDATE, pBbAddr->GetEp().GetIp(), pBbAddr->GetEp().GetPort(),
+                                                     pBbAddr->GetService(), pBbAddr->GetScore());
                 lock.unlock();
                 if (pNode)
                 {
@@ -257,14 +255,14 @@ bool CBbAddrPool::AddRecvAddr(tcp::endpoint& ep, uint64 nServiceIn)
     return true;
 }
 
-void CBbAddrPool::DelAddr(CMthNetEndpoint &ep)
+void CBbAddrPool::DelAddr(CMthNetEndpoint& ep)
 {
     boost::unique_lock<boost::shared_mutex> lock(lockAddrPool);
-    map<string,CBbAddr*>::iterator it;
+    map<string, CBbAddr*>::iterator it;
     it = mapAddrPool.find(ep.ToString());
     if (it != mapAddrPool.end())
     {
-        CBbAddr *pNode = (*it).second;
+        CBbAddr* pNode = (*it).second;
         if (pNode->fConfidentAddr)
         {
             setConfidentAddrPool.erase(it->first);
@@ -272,7 +270,7 @@ void CBbAddrPool::DelAddr(CMthNetEndpoint &ep)
         mapAddrPool.erase(it);
         if (pDbStorage)
         {
-            CDNSeedNode* pDbMsg = new CDNSeedNode(DDN_E_MSG_TYPE_DELETE, ep.GetIp(),ep.GetPort(),pNode->GetService(),pNode->GetScore());
+            CDNSeedNode* pDbMsg = new CDNSeedNode(DDN_E_MSG_TYPE_DELETE, ep.GetIp(), ep.GetPort(), pNode->GetService(), pNode->GetScore());
             lock.unlock();
             if (pDbMsg)
             {
@@ -286,12 +284,12 @@ void CBbAddrPool::DelAddr(CMthNetEndpoint &ep)
     }
 }
 
-void CBbAddrPool::DelAddr(CBbAddr &addr)
+void CBbAddrPool::DelAddr(CBbAddr& addr)
 {
     DelAddr(addr.GetEp());
 }
 
-bool CBbAddrPool::QueryAddr(CMthNetEndpoint &ep, CBbAddr& addr)
+bool CBbAddrPool::QueryAddr(CMthNetEndpoint& ep, CBbAddr& addr)
 {
     boost::shared_lock<boost::shared_mutex> lock(lockAddrPool);
     CBbAddr* pBbAddr = GetAddrNoLock(ep.ToString());
@@ -303,7 +301,7 @@ bool CBbAddrPool::QueryAddr(CMthNetEndpoint &ep, CBbAddr& addr)
     return false;
 }
 
-bool CBbAddrPool::DoScore(CMthNetEndpoint &ep, int iDoValue)
+bool CBbAddrPool::DoScore(CMthNetEndpoint& ep, int iDoValue)
 {
     boost::unique_lock<boost::shared_mutex> lock(lockAddrPool);
     CBbAddr* pBbAddr = GetAddrNoLock(ep.ToString());
@@ -329,7 +327,7 @@ bool CBbAddrPool::DoScore(CBbAddr& addr, int iDoValue)
     return DoScore(addr.GetEp(), iDoValue);
 }
 
-bool CBbAddrPool::UpdateHeight(CMthNetEndpoint &ep, int iHeight)
+bool CBbAddrPool::UpdateHeight(CMthNetEndpoint& ep, int iHeight)
 {
     boost::unique_lock<boost::shared_mutex> lock(lockAddrPool);
     CBbAddr* pBbAddr = GetAddrNoLock(ep.ToString());
@@ -355,15 +353,15 @@ bool CBbAddrPool::UpdateHeight(CMthNetEndpoint &ep, int iHeight)
             }
             if (nNodeCount > 0)
             {
-                SetConfidentHeight((int)(nTotalHeight/nNodeCount));
+                SetConfidentHeight((int)(nTotalHeight / nNodeCount));
             }
         }
         else
         {
             if (iOldScore != pBbAddr->GetScore() && pDbStorage)
             {
-                CDNSeedNode* pNode = new CDNSeedNode(DDN_E_MSG_TYPE_UPDATE, pBbAddr->GetEp().GetIp(), pBbAddr->GetEp().GetPort(), 
-                    pBbAddr->GetService(), pBbAddr->GetScore());
+                CDNSeedNode* pNode = new CDNSeedNode(DDN_E_MSG_TYPE_UPDATE, pBbAddr->GetEp().GetIp(), pBbAddr->GetEp().GetPort(),
+                                                     pBbAddr->GetService(), pBbAddr->GetScore());
                 lock.unlock();
                 if (pNode)
                 {
@@ -379,9 +377,9 @@ bool CBbAddrPool::UpdateHeight(CMthNetEndpoint &ep, int iHeight)
 void CBbAddrPool::ReleaseAddrPool()
 {
     boost::unique_lock<boost::shared_mutex> lock(lockAddrPool);
-    CBbAddr *pNode;
-    map<string,CBbAddr*>::iterator it;
-    for (it = mapAddrPool.begin(); it != mapAddrPool.end(); )
+    CBbAddr* pNode;
+    map<string, CBbAddr*>::iterator it;
+    for (it = mapAddrPool.begin(); it != mapAddrPool.end();)
     {
         pNode = (*it).second;
         mapAddrPool.erase(it++);
@@ -394,7 +392,7 @@ void CBbAddrPool::ReleaseAddrPool()
 
 CBbAddr* CBbAddrPool::GetAddrNoLock(const string& sAddrPort)
 {
-    map<string,CBbAddr*>::iterator it = mapAddrPool.find(sAddrPort);
+    map<string, CBbAddr*>::iterator it = mapAddrPool.find(sAddrPort);
     if (it != mapAddrPool.end())
     {
         return (*it).second;
@@ -412,36 +410,35 @@ void CBbAddrPool::GetGoodAddressList(vector<CAddress>& vAddrList)
     uint32 nMapSize;
     uint32 nGetPos;
     uint32 nGoodCount;
-    CBbAddr *pBbAddr;
-    CBbAddr **ppGoodBbAddrTable;
-    map<string,CBbAddr*>::iterator it;
+    CBbAddr* pBbAddr;
+    CBbAddr** ppGoodBbAddrTable;
+    map<string, CBbAddr*>::iterator it;
 
     //<Need improvement>
     nMapSize = mapAddrPool.size();
     if (nMapSize == 0)
     {
-        return ;
+        return;
     }
-    ppGoodBbAddrTable = (CBbAddr**)malloc(sizeof(CBbAddr*)*nMapSize);
+    ppGoodBbAddrTable = (CBbAddr**)malloc(sizeof(CBbAddr*) * nMapSize);
     if (ppGoodBbAddrTable == NULL)
     {
         return;
     }
-    memset(ppGoodBbAddrTable, 0, sizeof(CBbAddr*)*nMapSize);
+    memset(ppGoodBbAddrTable, 0, sizeof(CBbAddr*) * nMapSize);
 
     nGoodCount = 0;
     for (it = mapAddrPool.begin(); it != mapAddrPool.end(); it++)
     {
         pBbAddr = it->second;
-        if (pBbAddr && 
-            pBbAddr->iScore >= pDnseedCfg->nGoodAddrScore)
+        if (pBbAddr && pBbAddr->iScore >= pDnseedCfg->nGoodAddrScore)
         {
             ppGoodBbAddrTable[nGoodCount++] = pBbAddr;
         }
     }
 
-    srand(time(NULL)+GetTimeMillis());
-    for (int i=0; i<nGoodCount*10; i++)
+    srand(time(NULL) + GetTimeMillis());
+    for (int i = 0; i < nGoodCount * 10; i++)
     {
         if (nGoodCount <= pDnseedCfg->nGetGoodAddrCount)
         {
@@ -469,10 +466,9 @@ void CBbAddrPool::GetGoodAddressList(vector<CAddress>& vAddrList)
             ppGoodBbAddrTable[nGetPos] = NULL;
         }
     }
-    if (vAddrList.size() < pDnseedCfg->nGetGoodAddrCount && 
-        nGoodCount > pDnseedCfg->nGetGoodAddrCount)
+    if (vAddrList.size() < pDnseedCfg->nGetGoodAddrCount && nGoodCount > pDnseedCfg->nGetGoodAddrCount)
     {
-        for (nGetPos=0; nGetPos<nGoodCount; nGetPos++)
+        for (nGetPos = 0; nGetPos < nGoodCount; nGetPos++)
         {
             pBbAddr = ppGoodBbAddrTable[nGetPos];
             if (pBbAddr && pBbAddr->GetAddress(ep, nService, iScore))
@@ -494,9 +490,9 @@ bool CBbAddrPool::GetCallConnectAddrList(vector<CBbAddr>& vBbAddr, uint32 nGetAd
     boost::unique_lock<boost::shared_mutex> lock(lockAddrPool);
 
     int64 nCurTime;
-    map<string,CBbAddr*>::iterator it;
+    map<string, CBbAddr*>::iterator it;
     uint32 nCheckCount;
-    CBbAddr *pBbAddr = NULL;
+    CBbAddr* pBbAddr = NULL;
 
     //<Need improvement>
     nCurTime = GetTime();
@@ -589,17 +585,16 @@ bool CBbAddrPool::GetCallConnectAddrList(vector<CBbAddr>& vBbAddr, uint32 nGetAd
     return true;
 }
 
-
 int64 CBbAddrPool::GetNetTime()
 {
     boost::shared_lock<boost::shared_mutex> lock(lockNetTime);
     return (GetTime() + tmNet.GetTimeOffset());
 }
 
-bool CBbAddrPool::UpdateNetTime(const boost::asio::ip::address& address,int64 nTimeDelta)
+bool CBbAddrPool::UpdateNetTime(const boost::asio::ip::address& address, int64 nTimeDelta)
 {
     boost::unique_lock<boost::shared_mutex> lock(lockNetTime);
-    if (!tmNet.AddNew(address,nTimeDelta))
+    if (!tmNet.AddNew(address, nTimeDelta))
     {
         return false;
     }
@@ -618,4 +613,9 @@ uint32 CBbAddrPool::GetConfidentHeight()
     return nConfidentHeight;
 }
 
-}  // namespace dnseed
+const uint256& CBbAddrPool::GetGenesisBlockHash()
+{
+    return pDnseedCfg->hashGenesisBlock;
+}
+
+} // namespace dnseed
