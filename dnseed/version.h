@@ -5,28 +5,26 @@
 #ifndef __DNSEED_VERSION_H
 #define __DNSEED_VERSION_H
 
-#include <string>
-#include <sstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <iostream>
+#include <sstream>
+#include <string>
 
-#define BB_VERSION_NAME        "BigDNSeed"
+#define BB_VERSION_NAME "BigDNSeed"
 
-#define BB_VERSION_MAJOR       0
-#define BB_VERSION_MINOR       0
-#define BB_VERSION_REVISION    1
+#define BB_VERSION_MAJOR 1
+#define BB_VERSION_MINOR 0
+#define BB_VERSION_REVISION 0
 
 std::string FormatVersion(int nVersion);
 
-static const int BB_VERSION =
-                           10000 * BB_VERSION_MAJOR
-                         +   100 * BB_VERSION_MINOR
-                         +     1 * BB_VERSION_REVISION;
+static const int BB_VERSION = 10000 * BB_VERSION_MAJOR
+                              + 100 * BB_VERSION_MINOR
+                              + 1 * BB_VERSION_REVISION;
 static const std::string BB_VERSION_STR = FormatVersion(BB_VERSION);
 
-static const int PROTO_VERSION = 100;
-static const int MIN_PROTO_VERSION = 100;
-
+static const int PROTO_VERSION = 10000;
+static const int MIN_PROTO_VERSION = 10000;
 
 inline std::string FormatVersion(const int nMajor, const int nMinor, const int nRevision)
 {
