@@ -14,7 +14,7 @@
 
 #define BB_VERSION_MAJOR 1
 #define BB_VERSION_MINOR 0
-#define BB_VERSION_REVISION 0
+#define BB_VERSION_REVISION 1
 
 std::string FormatVersion(int nVersion);
 
@@ -52,7 +52,7 @@ inline void ResolveVersion(const int nVersion, int& nMajor, int& nMinor, int& nR
     nMinor = (nVersion / 100) % 100;
     nRevision = nVersion % 100;
 }
-   
+
 inline bool ResolveVersion(const std::string& strVersion, int& nMajor, int& nMinor, int& nRevision)
 {
     if (strVersion.find(".") != std::string::npos)
