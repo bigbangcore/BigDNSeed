@@ -5,12 +5,13 @@
 #ifndef __DNSEED_ENTRY_H
 #define __DNSEED_ENTRY_H
 
-#include <string>
 #include <boost/asio.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
-#include "dispatcher.h"
+#include <string>
+
 #include "config.h"
+#include "dispatcher.h"
 #include "version.h"
 
 namespace dnseed
@@ -23,15 +24,15 @@ public:
 
 public:
     ~CBbEntry();
-    bool Initialize(int argc,char *argv[]);
+    bool Initialize(int argc, char* argv[]);
 
     bool TryLockFile(const std::string& strLockFile);
     bool Run();
     void Stop();
 
 protected:
-    void HandleSignal(const boost::system::error_code& error,int signal_number);
-    void HandleTimer(const boost::system::error_code &err);
+    void HandleSignal(const boost::system::error_code& error, int signal_number);
+    void HandleTimer(const boost::system::error_code& err);
 
     boost::filesystem::path GetDefaultDataDir();
 
@@ -45,9 +46,9 @@ protected:
     boost::interprocess::file_lock lockFile;
 
     CDnseedConfig tDnseedCfg;
-    CDispatcher *pDisp;
+    CDispatcher* pDisp;
 
-    boost::asio::deadline_timer *pTimerStat;
+    boost::asio::deadline_timer* pTimerStat;
 
 private:
     CBbEntry();
@@ -58,4 +59,3 @@ private:
 } // namespace dnseed
 
 #endif //__DNSEED_ENTRY_H
-

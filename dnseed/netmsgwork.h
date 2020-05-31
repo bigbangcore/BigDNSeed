@@ -5,16 +5,17 @@
 #ifndef __DNSEED_NETMSGWORK_H
 #define __DNSEED_NETMSGWORK_H
 
-#include <iostream>
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <boost/thread.hpp>
-#include "blockhead/type.h"
-#include "network/networkservice.h"
-#include "netproto.h"
-#include "netpeer.h"
+#include <iostream>
+
 #include "addrpool.h"
+#include "blockhead/type.h"
 #include "config.h"
+#include "netpeer.h"
+#include "netproto.h"
+#include "network/networkservice.h"
 
 namespace dnseed
 {
@@ -28,7 +29,7 @@ class CMsgWorkThread;
 class CWorkThreadPool
 {
 public:
-    CWorkThreadPool(CDnseedConfig *pCfg, CNetWorkService *nws, CBbAddrPool *pBbAddrPoolIn);
+    CWorkThreadPool(CDnseedConfig* pCfg, CNetWorkService* nws, CBbAddrPool* pBbAddrPoolIn);
     ~CWorkThreadPool();
 
     bool StartAll();
@@ -37,20 +38,20 @@ public:
     bool StatRunData(CRunStatData& tStatData);
 
 private:
-    CMsgWorkThread *pWorkThreadTable[MAX_NET_WORK_THREAD_COUNT];
+    CMsgWorkThread* pWorkThreadTable[MAX_NET_WORK_THREAD_COUNT];
     uint32 nWorkThreadCount;
 
-    CDnseedConfig *pDNSeedCfg;
-    CNetWorkService *pNetWorkService;
-    CBbAddrPool *pBbAddrPool;
+    CDnseedConfig* pDNSeedCfg;
+    CNetWorkService* pNetWorkService;
+    CBbAddrPool* pBbAddrPool;
 };
-
 
 class CMsgWorkThread
 {
     friend class CNetPeer;
+
 public:
-    CMsgWorkThread(uint32 nThreadCount, uint32 nThreadIndex, CDnseedConfig *pCfg, CNetWorkService *nws, CBbAddrPool *pBbAddrPoolIn);
+    CMsgWorkThread(uint32 nThreadCount, uint32 nThreadIndex, CDnseedConfig* pCfg, CNetWorkService* nws, CBbAddrPool* pBbAddrPoolIn);
     ~CMsgWorkThread();
 
     bool Start();
@@ -62,15 +63,15 @@ private:
     void Work();
     void Timer();
 
-    void DoPacket(CMthNetPackData *pPackData);
-    bool SendDataPacket(uint64 nNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, char *pBuf, uint32 nLen);
+    void DoPacket(CMthNetPackData* pPackData);
+    bool SendDataPacket(uint64 nNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, char* pBuf, uint32 nLen);
 
     CNetPeer* AddNetPeer(bool fInBoundIn, uint64 nPeerNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn);
     void DelNetPeer(uint64 nPeerNetId);
     CNetPeer* GetNetPeer(uint64 nPeerNetId);
 
     void ActiveClosePeer(uint64 nPeerNetId);
-    bool HandlePeerHandshaked(CNetPeer *pPeer);
+    bool HandlePeerHandshaked(CNetPeer* pPeer);
 
     void DoCallConnect();
     void DoPeerState(time_t tmCurTime);
@@ -79,27 +80,26 @@ private:
 
 private:
     bool fRunFlag;
-    boost::thread *pThreadMsgWork;
+    boost::thread* pThreadMsgWork;
 
     uint32 nWorkThreadCount;
     uint32 nWorkThreadIndex;
-    CDnseedConfig *pDNSeedCfg;
-    CNetWorkService *pNetWorkService;
-    CBbAddrPool *pBbAddrPool;
-    CNetDataQueue *pNetDataQueue;
+    CDnseedConfig* pDNSeedCfg;
+    CNetWorkService* pNetWorkService;
+    CBbAddrPool* pBbAddrPool;
+    CNetDataQueue* pNetDataQueue;
     uint32 nPersCalloutAddrCount;
 
     int64 nStartBackTestTime;
     uint64 nCompBackTestCount;
 
-    map<uint64,CNetPeer*> mapPeer;
+    map<uint64, CNetPeer*> mapPeer;
 
     CRunStatData tNetStatData;
     boost::shared_mutex lockStat;
 
     time_t tmPrevTimerDoTime;
 };
-
 
 } //namespace dnseed
 

@@ -10,12 +10,12 @@ namespace network
 {
 
 //----------------------------------------------------------------------------------------
-static const unsigned char epipv4[12] = {0,0,0,0,0,0,0,0,0,0,0xff,0xff};
+static const unsigned char epipv4[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff };
 
-#define INET_ADDRSTRLEN  16  
-#define INET6_ADDRSTRLEN 46  
+#define INET_ADDRSTRLEN 16
+#define INET6_ADDRSTRLEN 46
 
-bool CMthNetIp::ToByteIpaddr(const char *pIpStr, unsigned char *pIpByte, int *pIpType) // ip type: 4: ipv4, 6: ipv6
+bool CMthNetIp::ToByteIpaddr(const char* pIpStr, unsigned char* pIpByte, int* pIpType) // ip type: 4: ipv4, 6: ipv6
 {
     if (pIpStr == NULL || pIpByte == NULL || pIpType == NULL)
     {
@@ -29,7 +29,7 @@ bool CMthNetIp::ToByteIpaddr(const char *pIpStr, unsigned char *pIpByte, int *pI
         *pIpType = MNI_IPV4;
         return true;
     }
-    
+
     struct in6_addr ipv6Addr;
     if (inet_pton(AF_INET6, pIpStr, (void*)&ipv6Addr) == 1)
     {
@@ -37,11 +37,11 @@ bool CMthNetIp::ToByteIpaddr(const char *pIpStr, unsigned char *pIpByte, int *pI
         *pIpType = MNI_IPV6;
         return true;
     }
-    
+
     return false;
 }
 
-bool CMthNetIp::ToStrIpaddr(const unsigned char *pIpByte, const int iIpType, char *pIpStrBuf, int iIpStrBufSize) // ip type: 4: ipv4, 6: ipv6
+bool CMthNetIp::ToStrIpaddr(const unsigned char* pIpByte, const int iIpType, char* pIpStrBuf, int iIpStrBufSize) // ip type: 4: ipv4, 6: ipv6
 {
     if (pIpByte == NULL || pIpStrBuf == NULL)
     {
@@ -66,11 +66,11 @@ bool CMthNetIp::ToStrIpaddr(const unsigned char *pIpByte, const int iIpType, cha
     {
         return false;
     }
-    
+
     return true;
 }
 
-bool CMthNetIp::SplitHostPort(const char *pAddr, char *pHost, int iHostBufSize, unsigned short *pPort)
+bool CMthNetIp::SplitHostPort(const char* pAddr, char* pHost, int iHostBufSize, unsigned short* pPort)
 {
     char *pos, *findpos;
     int len;
@@ -81,30 +81,37 @@ bool CMthNetIp::SplitHostPort(const char *pAddr, char *pHost, int iHostBufSize, 
     }
 
     pos = (char*)pAddr;
-    while (*pos && *pos == ' ') pos++;
-    if (*pos == 0) return false;
+    while (*pos && *pos == ' ')
+        pos++;
+    if (*pos == 0)
+        return false;
 
     if (*pos == '[')
     {
         pos++;
         findpos = strchr(pos, ']');
-        if (findpos == NULL) return false;
+        if (findpos == NULL)
+            return false;
         len = findpos - pos;
-        if (len <= 0 || len >= iHostBufSize) return false;
+        if (len <= 0 || len >= iHostBufSize)
+            return false;
         memcpy(pHost, pos, len);
         pHost[len] = 0;
 
-        pos = findpos+1;
-        while (*pos && *pos == ' ') pos++;
+        pos = findpos + 1;
+        while (*pos && *pos == ' ')
+            pos++;
         if (*pos == 0)
         {
             *pPort = 0;
             return true;
         }
-        if (*pos != ':') return false;
+        if (*pos != ':')
+            return false;
 
         pos++;
-        while (*pos && *pos == ' ') pos++;
+        while (*pos && *pos == ' ')
+            pos++;
         if (*pos == 0)
             *pPort = 0;
         else
@@ -116,7 +123,8 @@ bool CMthNetIp::SplitHostPort(const char *pAddr, char *pHost, int iHostBufSize, 
         if (findpos == NULL)
         {
             len = strlen(pos);
-            if (len <= 0 || len >= iHostBufSize) return false;
+            if (len <= 0 || len >= iHostBufSize)
+                return false;
             memcpy(pHost, pos, len);
             pHost[len] = 0;
             *pPort = 0;
@@ -124,12 +132,14 @@ bool CMthNetIp::SplitHostPort(const char *pAddr, char *pHost, int iHostBufSize, 
         else
         {
             len = findpos - pos;
-            if (len <= 0 || len >= iHostBufSize) return false;
+            if (len <= 0 || len >= iHostBufSize)
+                return false;
             memcpy(pHost, pos, len);
             pHost[len] = 0;
 
             pos = findpos + 1;
-            while (*pos && *pos == ' ') pos++;
+            while (*pos && *pos == ' ')
+                pos++;
             if (*pos == 0)
                 *pPort = 0;
             else
@@ -139,9 +149,8 @@ bool CMthNetIp::SplitHostPort(const char *pAddr, char *pHost, int iHostBufSize, 
     return true;
 }
 
-
 //--------------------------------------------------------------------------
-CMthNetIp::CMthNetIp(const unsigned char *pIpByte, const int iIpTypeIn)
+CMthNetIp::CMthNetIp(const unsigned char* pIpByte, const int iIpTypeIn)
 {
     memset(byteIp, 0, sizeof(byteIp));
     iIpType = MNI_UNKNOWN;
@@ -152,7 +161,7 @@ CMthNetIp::CMthNetIp(const unsigned char *pIpByte, const int iIpTypeIn)
             memcpy(byteIp, pIpByte, 4);
             iIpType = iIpTypeIn;
 
-            char buf[INET_ADDRSTRLEN] = {0};
+            char buf[INET_ADDRSTRLEN] = { 0 };
             ToStrIpaddr(pIpByte, MNI_IPV4, buf, INET_ADDRSTRLEN);
             strIp = buf;
         }
@@ -161,7 +170,7 @@ CMthNetIp::CMthNetIp(const unsigned char *pIpByte, const int iIpTypeIn)
             memcpy(byteIp, pIpByte, 16);
             iIpType = iIpTypeIn;
 
-            char buf[INET6_ADDRSTRLEN] = {0};
+            char buf[INET6_ADDRSTRLEN] = { 0 };
             ToStrIpaddr(pIpByte, MNI_IPV6, buf, INET6_ADDRSTRLEN);
             strIp = buf;
         }
@@ -182,14 +191,14 @@ bool CMthNetIp::SetIp(const char* pIpIn)
         return false;
     }
 
-    unsigned char ucTempIp[16] = {0};
+    unsigned char ucTempIp[16] = { 0 };
     int iTempIpType = 0;
     if (!ToByteIpaddr(pIpIn, ucTempIp, &iTempIpType))
     {
         return false;
     }
 
-    char ipbuf[64] = {0};
+    char ipbuf[64] = { 0 };
     if (!ToStrIpaddr(ucTempIp, iTempIpType, ipbuf, sizeof(ipbuf)))
     {
         return false;
@@ -214,7 +223,6 @@ string& CMthNetIp::GetIp()
 {
     return strIp;
 }
-
 
 //----------------------------------------------------------------------------------------
 bool CMthNetEndpoint::SetAddrPort(const char* pIpIn, const uint16 nPortIn)
@@ -247,7 +255,7 @@ bool CMthNetEndpoint::SetAddrPort(tcp::endpoint& ep)
     return true;
 }
 
-bool CMthNetEndpoint::SetEndpoint(tcp::endpoint& epAddr)
+bool CMthNetEndpoint::SetEndpoint(const tcp::endpoint& epAddr)
 {
     if (!SetIp(epAddr.address().to_string()))
     {
@@ -259,7 +267,7 @@ bool CMthNetEndpoint::SetEndpoint(tcp::endpoint& epAddr)
 
 bool CMthNetEndpoint::SetAddrPort(const char* pIpPort)
 {
-    char sHostBuf[INET6_ADDRSTRLEN] = {0};
+    char sHostBuf[INET6_ADDRSTRLEN] = { 0 };
     if (!SplitHostPort(pIpPort, sHostBuf, sizeof(sHostBuf), &usPort))
     {
         return false;
@@ -315,13 +323,12 @@ string CMthNetEndpoint::ToString()
     }
 }
 
-
 //----------------------------------------------------------------------------------------
 CNetDataQueue::~CNetDataQueue()
 {
-    while(!qData.empty())
+    while (!qData.empty())
     {
-        CMthNetPackData *pPack = qData.front();
+        CMthNetPackData* pPack = qData.front();
         if (pPack)
         {
             delete pPack;
@@ -390,7 +397,7 @@ bool CNetDataQueue::FetchPacket(CMthNetPackData*& pData, uint32& nPackCount, uin
 uint32 CNetDataQueue::QueryNetPackCountByNetId(uint64 nNetId)
 {
     boost::unique_lock<boost::mutex> lock(lockQueue);
-    map<uint64, pair<uint32,bool>>::iterator it;
+    map<uint64, pair<uint32, bool>>::iterator it;
     it = mapNetPort.find(nNetId);
     if (it != mapNetPort.end())
     {
@@ -429,10 +436,10 @@ bool CNetDataQueue::SetLowTrigger(uint32 nLowCount, CallLowTriggerBackFunc fnTri
     return true;
 }
 
-inline uint32 CNetDataQueue::DoSetNetCount(uint64 nNetId, bool *pIfLimitRecv)
+inline uint32 CNetDataQueue::DoSetNetCount(uint64 nNetId, bool* pIfLimitRecv)
 {
     uint32 nPackCount = 0;
-    map<uint64, pair<uint32,bool>>::iterator it = mapNetPort.find(nNetId);
+    map<uint64, pair<uint32, bool>>::iterator it = mapNetPort.find(nNetId);
     if (it != mapNetPort.end())
     {
         nPackCount = ++it->second.first;
@@ -444,7 +451,7 @@ inline uint32 CNetDataQueue::DoSetNetCount(uint64 nNetId, bool *pIfLimitRecv)
     }
     else
     {
-        mapNetPort.insert(make_pair(nNetId,make_pair(1,false)));
+        mapNetPort.insert(make_pair(nNetId, make_pair(1, false)));
         nPackCount = 1;
     }
     return nPackCount;
@@ -454,7 +461,7 @@ inline uint32 CNetDataQueue::DoGetNetCount(uint64 nNetId)
 {
     uint32 nCount = 0;
     bool fNeedTrig = false;
-    map<uint64, pair<uint32,bool>>::iterator it = mapNetPort.find(nNetId);
+    map<uint64, pair<uint32, bool>>::iterator it = mapNetPort.find(nNetId);
     if (it != mapNetPort.end())
     {
         if (it->second.first <= 1)
@@ -484,5 +491,4 @@ inline uint32 CNetDataQueue::DoGetNetCount(uint64 nNetId)
     return nCount;
 }
 
-}  // namespace network
-
+} // namespace network

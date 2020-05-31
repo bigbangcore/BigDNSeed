@@ -7,10 +7,9 @@
 namespace dnseed
 {
 
-
 //---------------------------------------------------------------------------
-CWorkThreadPool::CWorkThreadPool(CDnseedConfig *pCfg, CNetWorkService *nws,CBbAddrPool *pBbAddrPoolIn) : 
-    pDNSeedCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn)
+CWorkThreadPool::CWorkThreadPool(CDnseedConfig* pCfg, CNetWorkService* nws, CBbAddrPool* pBbAddrPoolIn)
+  : pDNSeedCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn)
 {
     nWorkThreadCount = pNetWorkService->GetWorkThreadCount();
     if (nWorkThreadCount > MAX_NET_WORK_THREAD_COUNT)
@@ -18,7 +17,7 @@ CWorkThreadPool::CWorkThreadPool(CDnseedConfig *pCfg, CNetWorkService *nws,CBbAd
         nWorkThreadCount = MAX_NET_WORK_THREAD_COUNT;
     }
 
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         pWorkThreadTable[i] = new CMsgWorkThread(nWorkThreadCount, i, pCfg, nws, pBbAddrPoolIn);
     }
@@ -26,7 +25,7 @@ CWorkThreadPool::CWorkThreadPool(CDnseedConfig *pCfg, CNetWorkService *nws,CBbAd
 
 CWorkThreadPool::~CWorkThreadPool()
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         delete pWorkThreadTable[i];
         pWorkThreadTable[i] = NULL;
@@ -35,7 +34,7 @@ CWorkThreadPool::~CWorkThreadPool()
 
 bool CWorkThreadPool::StartAll()
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         if (pWorkThreadTable[i] == NULL || !pWorkThreadTable[i]->Start())
         {
@@ -48,7 +47,7 @@ bool CWorkThreadPool::StartAll()
 
 void CWorkThreadPool::StopAll()
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         if (pWorkThreadTable[i])
         {
@@ -59,7 +58,7 @@ void CWorkThreadPool::StopAll()
 
 bool CWorkThreadPool::StatRunData(CRunStatData& tStatData)
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         if (pWorkThreadTable[i])
         {
@@ -72,11 +71,10 @@ bool CWorkThreadPool::StatRunData(CRunStatData& tStatData)
     return true;
 }
 
-
 //-----------------------------------------------------------------------------------------------
-CMsgWorkThread::CMsgWorkThread(uint32 nThreadCount, uint32 nThreadIndex, CDnseedConfig *pCfg, CNetWorkService *nws, CBbAddrPool *pBbAddrPoolIn) : 
-    nWorkThreadCount(nThreadCount), nWorkThreadIndex(nThreadIndex), pDNSeedCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn), 
-    pThreadMsgWork(NULL),pNetDataQueue(NULL),fRunFlag(false),tmPrevTimerDoTime(0)
+CMsgWorkThread::CMsgWorkThread(uint32 nThreadCount, uint32 nThreadIndex, CDnseedConfig* pCfg, CNetWorkService* nws, CBbAddrPool* pBbAddrPoolIn)
+  : nWorkThreadCount(nThreadCount), nWorkThreadIndex(nThreadIndex), pDNSeedCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn),
+    pThreadMsgWork(NULL), pNetDataQueue(NULL), fRunFlag(false), tmPrevTimerDoTime(0)
 {
     pNetDataQueue = &(nws->GetWorkRecvQueue(nThreadIndex));
 
@@ -139,17 +137,16 @@ void CMsgWorkThread::GetNetStatData(CRunStatData& tStatOut)
     tStatOut = tNetStatData;
 }
 
-
 //-------------------------------------------------------------------------------
 void CMsgWorkThread::Work()
 {
     nStartBackTestTime = GetTimeMillis();
-    
+
     while (fRunFlag)
     {
         Timer();
 
-        CMthNetPackData *pPackData = NULL;
+        CMthNetPackData* pPackData = NULL;
         if (!pNetDataQueue->GetData(pPackData, 100) || pPackData == NULL)
         {
             continue;
@@ -170,9 +167,8 @@ void CMsgWorkThread::Timer()
     DoCallConnect();
 }
 
-
 //-------------------------------------------------------------------------------
-void CMsgWorkThread::DoPacket(CMthNetPackData *pPackData)
+void CMsgWorkThread::DoPacket(CMthNetPackData* pPackData)
 {
     switch (pPackData->eMsgType)
     {
@@ -183,7 +179,7 @@ void CMsgWorkThread::DoPacket(CMthNetPackData *pPackData)
             string sInfo = string("Setup message, peer: ") + pPackData->epPeerAddr.ToString();
             blockhead::StdDebug("CFLOW", sInfo.c_str());
         }
-        if (AddNetPeer(true,pPackData->ui64NetId,pPackData->epPeerAddr,pPackData->epLocalAddr) == NULL)
+        if (AddNetPeer(true, pPackData->ui64NetId, pPackData->epPeerAddr, pPackData->epLocalAddr) == NULL)
         {
             blockhead::StdError(__PRETTY_FUNCTION__, "DoPacket NET_MSG_TYPE_SETUP AddNetPeer error.");
             pNetWorkService->RemoveNetPort(pPackData->ui64NetId);
@@ -193,7 +189,7 @@ void CMsgWorkThread::DoPacket(CMthNetPackData *pPackData)
     }
     case NET_MSG_TYPE_DATA:
     {
-        CNetPeer *pNetPeer = GetNetPeer(pPackData->ui64NetId);
+        CNetPeer* pNetPeer = GetNetPeer(pPackData->ui64NetId);
         if (pNetPeer)
         {
             if (!pNetPeer->DoRecvPacket(pPackData))
@@ -270,29 +266,40 @@ void CMsgWorkThread::DoPacket(CMthNetPackData *pPackData)
     }
 }
 
-bool CMsgWorkThread::SendDataPacket(uint64 nNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, char *pBuf, uint32 nLen)
+bool CMsgWorkThread::SendDataPacket(uint64 nNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, char* pBuf, uint32 nLen)
 {
     if (nNetId == 0 || pBuf == NULL || nLen == 0)
     {
         blockhead::StdError(__PRETTY_FUNCTION__, "Param error.");
         return false;
     }
-    CMthNetPackData *pPackData = new CMthNetPackData(nNetId, NET_MSG_TYPE_DATA, NET_DIS_CAUSE_UNKNOWN, tPeerEpIn, tLocalEpIn, pBuf, nLen);
-    return pNetWorkService->ReqSendData(pPackData);
+    CMthNetPackData* pPackData = new CMthNetPackData(nNetId, NET_MSG_TYPE_DATA, NET_DIS_CAUSE_UNKNOWN, tPeerEpIn, tLocalEpIn, pBuf, nLen);
+    if (pPackData == NULL)
+    {
+        blockhead::StdError(__PRETTY_FUNCTION__, "new error.");
+        return false;
+    }
+    if (!pNetWorkService->ReqSendData(pPackData))
+    {
+        blockhead::StdError(__PRETTY_FUNCTION__, "ReqSendData fail.");
+        delete pPackData;
+        return false;
+    }
+    return true;
 }
 
 CNetPeer* CMsgWorkThread::AddNetPeer(bool fInBoundIn, uint64 nPeerNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn)
 {
     if (GetNetPeer(nPeerNetId) == NULL)
     {
-        CNetPeer *pNetPeer = new CNetPeer(this, pBbAddrPool, pDNSeedCfg->nMagicNum, 
-            fInBoundIn, nPeerNetId, tPeerEpIn, tLocalEpIn, pDNSeedCfg->fAllowAllAddr);
+        CNetPeer* pNetPeer = new CNetPeer(this, pBbAddrPool, pDNSeedCfg->nMagicNum,
+                                          fInBoundIn, nPeerNetId, tPeerEpIn, tLocalEpIn, pDNSeedCfg->fAllowAllAddr);
         if (pNetPeer == NULL)
         {
             blockhead::StdError(__PRETTY_FUNCTION__, "new CNetPeer fail.");
             return NULL;
         }
-        if (mapPeer.insert(make_pair(nPeerNetId,pNetPeer)).second)
+        if (mapPeer.insert(make_pair(nPeerNetId, pNetPeer)).second)
         {
             boost::unique_lock<boost::shared_mutex> lock(lockStat);
             if (fInBoundIn)
@@ -321,7 +328,7 @@ void CMsgWorkThread::DelNetPeer(uint64 nPeerNetId)
     it = mapPeer.find(nPeerNetId);
     if (it != mapPeer.end())
     {
-        CNetPeer *pPeer = it->second;
+        CNetPeer* pPeer = it->second;
         mapPeer.erase(it);
         if (pPeer)
         {
@@ -384,7 +391,7 @@ void CMsgWorkThread::ActiveClosePeer(uint64 nPeerNetId)
     DelNetPeer(nPeerNetId);
 }
 
-bool CMsgWorkThread::HandlePeerHandshaked(CNetPeer *pPeer)
+bool CMsgWorkThread::HandlePeerHandshaked(CNetPeer* pPeer)
 {
     tcp::endpoint ep;
     pPeer->tPeerEp.GetEndpoint(ep);
@@ -399,7 +406,7 @@ void CMsgWorkThread::DoCallConnect()
     uint64 nNeedTestCount = nPersCalloutAddrCount * nTestTimeLen / 1000 - nCompBackTestCount;
     if (nNeedTestCount <= 0)
     {
-        return ;
+        return;
     }
 
     vector<CBbAddr> vBbAddr;
@@ -429,17 +436,19 @@ void CMsgWorkThread::DoPeerState(time_t tmCurTime)
     uint32 nInCount = 0, nOutCount = 0;
 
     map<uint64, CNetPeer*>::iterator it;
-    for (it = mapPeer.begin(); it != mapPeer.end(); )
+    for (it = mapPeer.begin(); it != mapPeer.end();)
     {
         if (it->second)
         {
             pNetPeer = it->second;
             it++;
 
-            if (pNetPeer->fInBound) nInCount++;
-            else nOutCount++;
+            if (pNetPeer->fInBound)
+                nInCount++;
+            else
+                nOutCount++;
 
-            if(!pNetPeer->DoStateTimer(tmCurTime))
+            if (!pNetPeer->DoStateTimer(tmCurTime))
             {
                 ActiveClosePeer(pNetPeer->nPeerNetId);
             }
@@ -475,5 +484,4 @@ void CMsgWorkThread::StartConnectPeer(CBbAddr& tBbAddr)
     }
 }
 
-}  // namespace dnseed
-
+} // namespace dnseed

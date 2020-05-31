@@ -5,11 +5,13 @@
 #ifndef __DBC_DBCMYSQL_H
 #define __DBC_DBCMYSQL_H
 
-#include <iostream>
-#include <vector>
-#include "dbcacc.h"
-#include <mysql.h>
 #include <boost/thread/thread.hpp>
+#include <iostream>
+#include <mysql.h>
+#include <vector>
+
+#include "dbcacc.h"
+
 
 namespace dbc
 {
@@ -55,16 +57,16 @@ private:
     CDbcMysqlDbConnect* pDbConn;
     string strSql;
 
-    MYSQL_RES *pMysqlRes;
+    MYSQL_RES* pMysqlRes;
     MYSQL_ROW pMysqlRow;
     unsigned int uiFieldCount;
-    unsigned long *pFieldLenTable;
+    unsigned long* pFieldLenTable;
 };
-
 
 class CDbcMysqlDbConnect : virtual public CDbcDbConnect
 {
     friend class CDbcMysqlSelect;
+
 public:
     CDbcMysqlDbConnect(CDbcConfig& tDbcCfgIn);
     ~CDbcMysqlDbConnect();
@@ -79,10 +81,10 @@ public:
     void Release() override;
 
     string ToEscString(const string& str) override;
-    string ToEscString(const void* pBinary,size_t nBytes) override;
+    string ToEscString(const void* pBinary, size_t nBytes) override;
     string ToEscString(const std::vector<unsigned char>& vch) override
     {
-        return ToEscString(&vch[0],vch.size());
+        return ToEscString(&vch[0], vch.size());
     }
 
 private:
@@ -105,4 +107,3 @@ private:
 } // namespace dbc
 
 #endif //__DBC_DBCMYSQL_H
-

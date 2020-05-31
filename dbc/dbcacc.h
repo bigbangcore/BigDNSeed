@@ -8,13 +8,15 @@
 #include <iostream>
 #include <vector>
 
+
 namespace dbc
 {
 
 using namespace std;
 
 //--------------------------------------------------------------------------------
-enum {
+enum
+{
     DBC_DBTYPE_MYSQL = 1,
     DBC_DBTYPE_ORACLE = 2,
     DBC_DBTYPE_SQLSERVER = 3
@@ -24,8 +26,9 @@ class CDbcConfig
 {
 public:
     CDbcConfig() {}
-    CDbcConfig(CDbcConfig &tCfg) : iDbType(tCfg.iDbType),sDbIp(tCfg.sDbIp),
-        usDbPort(tCfg.usDbPort),sDbName(tCfg.sDbName),sDbUser(tCfg.sDbUser),sDbPwd(tCfg.sDbPwd) {}
+    CDbcConfig(CDbcConfig& tCfg)
+      : iDbType(tCfg.iDbType), sDbIp(tCfg.sDbIp),
+        usDbPort(tCfg.usDbPort), sDbName(tCfg.sDbName), sDbUser(tCfg.sDbUser), sDbPwd(tCfg.sDbPwd) {}
     ~CDbcConfig() {}
 
 public:
@@ -36,7 +39,6 @@ public:
     string sDbUser;
     string sDbPwd;
 };
-
 
 //-----------------------------------------------------------------------------
 class CDbcSelect
@@ -69,7 +71,6 @@ public:
     virtual bool GetField(unsigned int uiFieldIndex, vector<unsigned char>& vFieldValue) = 0;
 };
 
-
 //-----------------------------------------------------------------------------
 class CDbcDbConnect
 {
@@ -86,14 +87,12 @@ public:
     virtual void Release() = 0;
 
     virtual string ToEscString(const string& str) = 0;
-    virtual string ToEscString(const void* pBinary,size_t nBytes) = 0;
+    virtual string ToEscString(const void* pBinary, size_t nBytes) = 0;
     virtual string ToEscString(const std::vector<unsigned char>& vch) = 0;
 
     static CDbcDbConnect* DbcCreateDbConnObj(CDbcConfig& tDbcCfg);
 };
 
-
 } // namespace dbc
 
 #endif //__DBC_DBCACC_H
-

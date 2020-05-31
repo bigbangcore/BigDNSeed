@@ -3,9 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "entry.h"
+
+#include <boost/bind.hpp>
 #include <signal.h>
 #include <stdio.h>
-#include <boost/bind.hpp>
 
 using namespace std;
 using namespace blockhead;
@@ -24,7 +25,8 @@ CBbEntry& CBbEntry::GetInstance()
 }
 
 //------------------------------------------------------------------------------
-CBbEntry::CBbEntry() : ioService(),ipcSignals(ioService),pDisp(NULL),pTimerStat(NULL)
+CBbEntry::CBbEntry()
+  : ioService(), ipcSignals(ioService), pDisp(NULL), pTimerStat(NULL)
 {
     ipcSignals.add(SIGINT);
     ipcSignals.add(SIGTERM);
@@ -35,7 +37,7 @@ CBbEntry::CBbEntry() : ioService(),ipcSignals(ioService),pDisp(NULL),pTimerStat(
     ipcSignals.add(SIGHUP);
 #endif // defined(SIGHUP)
 
-    ipcSignals.async_wait(boost::bind(&CBbEntry::HandleSignal,this,_1,_2));
+    ipcSignals.async_wait(boost::bind(&CBbEntry::HandleSignal, this, _1, _2));
 }
 
 CBbEntry::~CBbEntry()
@@ -43,7 +45,7 @@ CBbEntry::~CBbEntry()
     Stop();
 }
 
-bool CBbEntry::Initialize(int argc, char *argv[])
+bool CBbEntry::Initialize(int argc, char* argv[])
 {
     if (!tDnseedCfg.ReadConfig(argc, argv, GetDefaultDataDir(), "bigdnseed.conf"))
     {
@@ -154,7 +156,8 @@ void CBbEntry::Uninitialize()
 bool CBbEntry::TryLockFile(const string& strLockFile)
 {
     FILE* fp = fopen(strLockFile.c_str(), "a");
-    if (fp) fclose(fp);
+    if (fp)
+        fclose(fp);
     lockFile = boost::interprocess::file_lock(strLockFile.c_str());
     return lockFile.try_lock();
 }
@@ -188,7 +191,7 @@ void CBbEntry::Stop()
     }
 }
 
-void CBbEntry::HandleSignal(const boost::system::error_code& error,int signal_number)
+void CBbEntry::HandleSignal(const boost::system::error_code& error, int signal_number)
 {
     if (signal_number == SIGINT || signal_number == SIGTERM)
     {
@@ -196,7 +199,7 @@ void CBbEntry::HandleSignal(const boost::system::error_code& error,int signal_nu
     }
 }
 
-void CBbEntry::HandleTimer(const boost::system::error_code &err)
+void CBbEntry::HandleTimer(const boost::system::error_code& err)
 {
     if (!err)
     {
@@ -240,7 +243,7 @@ path CBbEntry::GetDefaultDataDir()
     return path("C:\\bigdnseed");
 #else
     path pathRet;
-    char *pszHome = getenv("HOME");
+    char* pszHome = getenv("HOME");
     if (pszHome == NULL || strlen(pszHome) == 0)
     {
         pathRet = path("/");
@@ -330,6 +333,4 @@ void CBbEntry::ExitBackground(const path& pathData)
 #endif
 }
 
-
-}  // namespace dnseed
-
+} // namespace dnseed

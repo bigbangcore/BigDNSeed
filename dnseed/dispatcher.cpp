@@ -7,7 +7,6 @@
 namespace dnseed
 {
 
-
 //-------------------------------------------------------------------------
 CDispatcher::CDispatcher()
 {
@@ -24,7 +23,6 @@ CDispatcher::~CDispatcher()
     StopService();
     Deinitialize();
 }
-
 
 bool CDispatcher::Initialize(CDnseedConfig* pCfg)
 {
@@ -90,7 +88,6 @@ void CDispatcher::Deinitialize()
         pDbStorage = NULL;
     }
 }
-
 
 bool CDispatcher::StartService()
 {
@@ -165,17 +162,16 @@ void CDispatcher::Timer()
 
             if (pDnseedCfg->fShowRunStatData)
             {
-                char sTempBuf[512] = {0};
-                sprintf(sTempBuf, "Session:%d {In:%d Out:%d}, Total: {In:%ld-%ld (S:%ld-%ld F:%ld-%ld), Out:%ld-%ld (S:%ld-%ld F:%ld-%ld)}", 
-                    tStatData.nTcpConnCount, tStatData.nInBoundCount, tStatData.nOutBoundCount, 
-                    tStatData.nTotalInCount, (tStatData.nTotalInCount - tPrevStatData.nTotalInCount) / pDnseedCfg->nShowRunStatTime, 
-                    tStatData.nTotalInWorkSuccessCount, (tStatData.nTotalInWorkSuccessCount - tPrevStatData.nTotalInWorkSuccessCount) / pDnseedCfg->nShowRunStatTime, 
-                    tStatData.nTotalInWorkFailCount, (tStatData.nTotalInWorkFailCount - tPrevStatData.nTotalInWorkFailCount) / pDnseedCfg->nShowRunStatTime, 
-                    tStatData.nTotalOutCount, (tStatData.nTotalOutCount - tPrevStatData.nTotalOutCount) / pDnseedCfg->nShowRunStatTime, 
-                    tStatData.nTotalOutWorkSuccessCount, (tStatData.nTotalOutWorkSuccessCount - tPrevStatData.nTotalOutWorkSuccessCount) / pDnseedCfg->nShowRunStatTime, 
-                    tStatData.nTotalOutFailCount+tStatData.nTotalOutWorkFailCount, 
-                    ((tStatData.nTotalOutFailCount+tStatData.nTotalOutWorkFailCount) - (tPrevStatData.nTotalOutFailCount+tPrevStatData.nTotalOutWorkFailCount)) / pDnseedCfg->nShowRunStatTime
-                    );
+                char sTempBuf[512] = { 0 };
+                sprintf(sTempBuf, "Session:%d {In:%d Out:%d}, Total: {In:%ld-%ld (S:%ld-%ld F:%ld-%ld), Out:%ld-%ld (S:%ld-%ld F:%ld-%ld)}",
+                        tStatData.nTcpConnCount, tStatData.nInBoundCount, tStatData.nOutBoundCount,
+                        tStatData.nTotalInCount, (tStatData.nTotalInCount - tPrevStatData.nTotalInCount) / pDnseedCfg->nShowRunStatTime,
+                        tStatData.nTotalInWorkSuccessCount, (tStatData.nTotalInWorkSuccessCount - tPrevStatData.nTotalInWorkSuccessCount) / pDnseedCfg->nShowRunStatTime,
+                        tStatData.nTotalInWorkFailCount, (tStatData.nTotalInWorkFailCount - tPrevStatData.nTotalInWorkFailCount) / pDnseedCfg->nShowRunStatTime,
+                        tStatData.nTotalOutCount, (tStatData.nTotalOutCount - tPrevStatData.nTotalOutCount) / pDnseedCfg->nShowRunStatTime,
+                        tStatData.nTotalOutWorkSuccessCount, (tStatData.nTotalOutWorkSuccessCount - tPrevStatData.nTotalOutWorkSuccessCount) / pDnseedCfg->nShowRunStatTime,
+                        tStatData.nTotalOutFailCount + tStatData.nTotalOutWorkFailCount,
+                        ((tStatData.nTotalOutFailCount + tStatData.nTotalOutWorkFailCount) - (tPrevStatData.nTotalOutFailCount + tPrevStatData.nTotalOutWorkFailCount)) / pDnseedCfg->nShowRunStatTime);
                 blockhead::StdLog("STAT", sTempBuf);
             }
 
@@ -184,5 +180,4 @@ void CDispatcher::Timer()
     }
 }
 
-}  // namespace dnseed
-
+} // namespace dnseed

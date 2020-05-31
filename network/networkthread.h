@@ -7,16 +7,16 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <boost/regex.hpp>
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/thread.hpp>
+#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
+#include <boost/thread.hpp>
+
 #include "blockhead/type.h"
 #include "blockhead/util.h"
 #include "nbase/mthbase.h"
 #include "networkbase.h"
-
 
 namespace network
 {
@@ -28,21 +28,30 @@ class CNetWorkService;
 class CTcpConnect;
 class CMthNetPackData;
 
-
 class CNetWorkThread
 {
     friend class CTcpConnect;
+
 public:
     CNetWorkThread(uint16 usThreadWorkIdIn, CNetWorkService& inNetWork);
     ~CNetWorkThread();
 
-    uint16 GetThreadId() const {return usThreadWorkId;}
-    boost::asio::io_service& GetIoService() {return ioServiceClientWork;}
+    uint16 GetThreadId() const
+    {
+        return usThreadWorkId;
+    }
+    boost::asio::io_service& GetIoService()
+    {
+        return ioServiceClientWork;
+    }
 
     bool Start();
     void Stop();
 
-    CNetDataQueue& GetRecvQueue() {return qRecvQueue;}
+    CNetDataQueue& GetRecvQueue()
+    {
+        return qRecvQueue;
+    }
 
     void Disconnect(CTcpConnect* pTcpConnIn);
     void RemoveTcpConnect(CTcpConnect* pTcpConnIn);
@@ -56,29 +65,27 @@ private:
 
     void DoTcpRemoveTimer();
 
-    void HandleTimer(const boost::system::error_code &err);
+    void HandleTimer(const boost::system::error_code& err);
     void HandleAccept(CTcpConnect* pTcpConnect);
     void HandleSendData(CMthNetPackData* pNvBuf);
     void HandleRecvRequest(uint64 nNetId);
-    void HandleConnectCompleted(CTcpConnect* pTcpConnect, const boost::system::error_code &ec);
+    void HandleConnectCompleted(CTcpConnect* pTcpConnect, const boost::system::error_code& ec);
 
 private:
     CNetWorkService& tNetWorkService;
     uint16 usThreadWorkId;
 
-    boost::thread *pThreadClientWork;
+    boost::thread* pThreadClientWork;
     boost::asio::io_service ioServiceClientWork;
     boost::asio::io_service::work workClientWork;
-    boost::asio::deadline_timer *pTimerClientWork;
+    boost::asio::deadline_timer* pTimerClientWork;
 
-    std::map<uint64,CTcpConnect*> mapTcpConn;
-    std::map<uint64,CTcpConnect*> mapTcpRemove;
+    std::map<uint64, CTcpConnect*> mapTcpConn;
+    std::map<uint64, CTcpConnect*> mapTcpRemove;
 
     CNetDataQueue qRecvQueue;
 };
 
-
-
-}  // namespace network
+} // namespace network
 
 #endif //__NETWORK_NETWORKTHREAD_H

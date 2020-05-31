@@ -3,10 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "tcpconnect.h"
-#include "networkthread.h"
-#include "networkservice.h"
-#include "networkbase.h"
+
 #include "nbase/mthbase.h"
+#include "networkbase.h"
+#include "networkservice.h"
+#include "networkthread.h"
 
 using namespace std;
 using namespace nbase;
@@ -14,19 +15,18 @@ using namespace nbase;
 namespace network
 {
 
-
-CTcpConnect::CTcpConnect(CNetWorkThread& inNetWorkThread, uint64 nListenNetId, CMthNetEndpoint& epListen) :
-        socketClient(inNetWorkThread.GetIoService()),tNetWorkThread(inNetWorkThread),
-        ui64LinkListenNetId(nListenNetId),epLinkListen(epListen),pCurSendNvBuf(NULL),nPostRecvOpCount(0),nRefCount(0)
+CTcpConnect::CTcpConnect(CNetWorkThread& inNetWorkThread, uint64 nListenNetId, CMthNetEndpoint& epListen)
+  : socketClient(inNetWorkThread.GetIoService()), tNetWorkThread(inNetWorkThread),
+    ui64LinkListenNetId(nListenNetId), epLinkListen(epListen), pCurSendNvBuf(NULL), nPostRecvOpCount(0), nRefCount(0)
 {
     fInBound = true;
     fIfOpenSocket = true;
     ui64TcpConnNetId = CBaseUniqueId::CreateUniqueId(0, 0, inNetWorkThread.GetThreadId(), 0);
 }
 
-CTcpConnect::CTcpConnect(CNetWorkThread& inNetWorkThread, CMthNetEndpoint& epPeer) : 
-    socketClient(inNetWorkThread.GetIoService()),tNetWorkThread(inNetWorkThread),
-    epPeer(epPeer),pCurSendNvBuf(NULL),nPostRecvOpCount(0),nRefCount(0)
+CTcpConnect::CTcpConnect(CNetWorkThread& inNetWorkThread, CMthNetEndpoint& epPeer)
+  : socketClient(inNetWorkThread.GetIoService()), tNetWorkThread(inNetWorkThread),
+    epPeer(epPeer), pCurSendNvBuf(NULL), nPostRecvOpCount(0), nRefCount(0)
 {
     fInBound = false;
     fIfOpenSocket = true;
@@ -42,7 +42,7 @@ CTcpConnect::~CTcpConnect()
     }
 
     CMthNetPackData* pTempBuf;
-    while(!qWaitSendQueue.empty())
+    while (!qWaitSendQueue.empty())
     {
         pTempBuf = qWaitSendQueue.front();
         qWaitSendQueue.pop();
@@ -60,21 +60,21 @@ CTcpConnect::~CTcpConnect()
 
 bool CTcpConnect::Accept()
 {
-    tcp::endpoint ep;
-
-    ep = socketClient.remote_endpoint();
-    epPeer.SetEndpoint(ep);
-    ep = socketClient.local_endpoint();
-    epLocal.SetEndpoint(ep);
-
-    CMthNetPackData *pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_SETUP, NET_DIS_CAUSE_UNKNOWN, epPeer, epLinkListen);
-    if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf,4000))
+    if (fIfOpenSocket && socketClient.is_open())
     {
-        delete pMthBuf;
-        return false;
+        epPeer.SetEndpoint(socketClient.remote_endpoint());
+        epLocal.SetEndpoint(socketClient.local_endpoint());
+
+        CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_SETUP, NET_DIS_CAUSE_UNKNOWN, epPeer, epLinkListen);
+        if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
+        {
+            delete pMthBuf;
+            return false;
+        }
+        PostRecvRequest();
+        return true;
     }
-    PostRecvRequest();
-    return true;
+    return false;
 }
 
 void CTcpConnect::TcpRemove(E_DISCONNECT_CAUSE eCloseCause)
@@ -83,8 +83,8 @@ void CTcpConnect::TcpRemove(E_DISCONNECT_CAUSE eCloseCause)
     {
         socketClient.close();
         tNetWorkThread.Disconnect(this);
-        CMthNetPackData *pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_CLOSE, eCloseCause, epPeer, epLinkListen);
-        if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf,4000))
+        CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_CLOSE, eCloseCause, epPeer, epLinkListen);
+        if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
         {
             delete pMthBuf;
         }
@@ -92,7 +92,7 @@ void CTcpConnect::TcpRemove(E_DISCONNECT_CAUSE eCloseCause)
         tmCloseTime = time(NULL);
     }
 
-    if (nRefCount == 0) 
+    if (nRefCount == 0)
     {
         tNetWorkThread.RemoveTcpConnect(this);
         delete this;
@@ -101,16 +101,23 @@ void CTcpConnect::TcpRemove(E_DISCONNECT_CAUSE eCloseCause)
 
 void CTcpConnect::SetSendData(CMthNetPackData* pNvBuf)
 {
-    if (pNvBuf && pNvBuf->GetDataBuf() && pNvBuf->GetDataLen())
+    if (pNvBuf)
     {
-        if (pCurSendNvBuf == NULL)
+        if (pNvBuf->GetDataBuf() && pNvBuf->GetDataLen() > 0)
         {
-            pCurSendNvBuf = pNvBuf;
-            PostSendRequest();
+            if (pCurSendNvBuf == NULL)
+            {
+                pCurSendNvBuf = pNvBuf;
+                PostSendRequest();
+            }
+            else
+            {
+                qWaitSendQueue.push(pNvBuf);
+            }
         }
         else
         {
-            qWaitSendQueue.push(pNvBuf);
+            delete pNvBuf;
         }
     }
 }
@@ -119,10 +126,10 @@ void CTcpConnect::PostRecvRequest()
 {
     if (nPostRecvOpCount == 0)
     {
-        socketClient.async_read_some(boost::asio::buffer(buffer_read, sizeof(buffer_read)), 
-                                    boost::bind(&CTcpConnect::HandleRead, this,
-                                                boost::asio::placeholders::error,
-                                                boost::asio::placeholders::bytes_transferred));
+        socketClient.async_read_some(boost::asio::buffer(buffer_read, sizeof(buffer_read)),
+                                     boost::bind(&CTcpConnect::HandleRead, this,
+                                                 boost::asio::placeholders::error,
+                                                 boost::asio::placeholders::bytes_transferred));
         nPostRecvOpCount++;
         nRefCount++;
     }
@@ -133,19 +140,22 @@ void CTcpConnect::PostSendRequest()
     if (pCurSendNvBuf)
     {
         boost::asio::async_write(socketClient, boost::asio::buffer(pCurSendNvBuf->GetDataBuf(), pCurSendNvBuf->GetDataLen()),
-                                boost::bind(&CTcpConnect::HandleWrite, this,
-                                        boost::asio::placeholders::error,
-                                        boost::asio::placeholders::bytes_transferred));
+                                 boost::bind(&CTcpConnect::HandleWrite, this,
+                                             boost::asio::placeholders::error,
+                                             boost::asio::placeholders::bytes_transferred));
         nRefCount++;
     }
 }
 
 bool CTcpConnect::ConnectCompleted()
 {
-    tcp::endpoint ep = socketClient.local_endpoint();
-    epLocal.SetEndpoint(ep);
-    CMthNetPackData *pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_COMPLETE_NOTIFY, NET_DIS_CAUSE_CONNECT_SUCCESS, epPeer, epLocal);
-    if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf,4000))
+    if (!socketClient.is_open())
+    {
+        return false;
+    }
+    epLocal.SetEndpoint(socketClient.local_endpoint());
+    CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_COMPLETE_NOTIFY, NET_DIS_CAUSE_CONNECT_SUCCESS, epPeer, epLocal);
+    if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
     {
         delete pMthBuf;
         return false;
@@ -156,8 +166,8 @@ bool CTcpConnect::ConnectCompleted()
 
 void CTcpConnect::ConnectFail()
 {
-    CMthNetPackData *pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_COMPLETE_NOTIFY, NET_DIS_CAUSE_CONNECT_FAIL, epPeer, epLocal);
-    if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf,4000))
+    CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_COMPLETE_NOTIFY, NET_DIS_CAUSE_CONNECT_FAIL, epPeer, epLocal);
+    if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
     {
         delete pMthBuf;
     }
@@ -172,9 +182,8 @@ void CTcpConnect::DoRemoveTimer()
     }
 }
 
-
 //---------------------------------------------------------------------------------------------------
-void CTcpConnect::HandleRead(const boost::system::error_code &ec, std::size_t bytes_transferred)
+void CTcpConnect::HandleRead(const boost::system::error_code& ec, std::size_t bytes_transferred)
 {
     nRefCount--;
     if (nPostRecvOpCount > 0)
@@ -185,7 +194,7 @@ void CTcpConnect::HandleRead(const boost::system::error_code &ec, std::size_t by
     if (!ec)
     {
         bool fLimitRecv = false;
-        CMthNetPackData *pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_DATA, NET_DIS_CAUSE_UNKNOWN, epPeer, epLinkListen, buffer_read, bytes_transferred);
+        CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_DATA, NET_DIS_CAUSE_UNKNOWN, epPeer, epLinkListen, buffer_read, bytes_transferred);
         if (!tNetWorkThread.qRecvQueue.PushPacket(pMthBuf, fLimitRecv, 4000))
         {
             delete pMthBuf;
@@ -204,7 +213,7 @@ void CTcpConnect::HandleRead(const boost::system::error_code &ec, std::size_t by
     }
 }
 
-void CTcpConnect::HandleWrite(const boost::system::error_code &ec, std::size_t bytes_transferred)
+void CTcpConnect::HandleWrite(const boost::system::error_code& ec, std::size_t bytes_transferred)
 {
     nRefCount--;
     if (!ec)
@@ -214,15 +223,22 @@ void CTcpConnect::HandleWrite(const boost::system::error_code &ec, std::size_t b
             delete pCurSendNvBuf;
             pCurSendNvBuf = NULL;
         }
-
         while (!qWaitSendQueue.empty())
         {
             pCurSendNvBuf = qWaitSendQueue.front();
             qWaitSendQueue.pop();
-            if (pCurSendNvBuf && pCurSendNvBuf->GetDataBuf() && pCurSendNvBuf->GetDataLen())
+            if (pCurSendNvBuf && pCurSendNvBuf->GetDataBuf() && pCurSendNvBuf->GetDataLen() > 0)
             {
                 PostSendRequest();
                 break;
+            }
+            else
+            {
+                if (pCurSendNvBuf)
+                {
+                    delete pCurSendNvBuf;
+                    pCurSendNvBuf = NULL;
+                }
             }
         }
     }
@@ -232,4 +248,4 @@ void CTcpConnect::HandleWrite(const boost::system::error_code &ec, std::size_t b
     }
 }
 
-}  // namespace network
+} // namespace network

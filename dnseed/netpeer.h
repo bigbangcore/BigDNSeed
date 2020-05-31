@@ -6,10 +6,11 @@
 #define __DNSEED_NETPEER_H
 
 #include <iostream>
-#include "blockhead/type.h"
-#include "network/networkbase.h"
-#include "netproto.h"
+
 #include "addrpool.h"
+#include "blockhead/type.h"
+#include "netproto.h"
+#include "network/networkbase.h"
 
 namespace dnseed
 {
@@ -37,19 +38,21 @@ typedef enum _DNP_E_PEER_STATE
     DNP_E_PEER_STATE_OUT_WAIT_ADDRESS_RSP,
     DNP_E_PEER_STATE_OUT_COMPLETE
 
-} DNP_E_PEER_STATE, *PDNP_E_PEER_STATE;
+} DNP_E_PEER_STATE,
+    *PDNP_E_PEER_STATE;
 
 #define DNP_STATE_TIMEOUT(tmCurTime, nSeconds) (tmCurTime - tmStateBeginTime >= nSeconds || tmCurTime < tmStateBeginTime)
 
 class CNetPeer
 {
     friend class CMsgWorkThread;
+
 public:
-    CNetPeer(CMsgWorkThread *pMsgWorkThreadIn, CBbAddrPool *pBbAddrPoolIn, uint32 nMsgMagicIn, 
-        bool fInBoundIn, uint64 nNetIdIn, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, bool fAllowAllAddrIn);
+    CNetPeer(CMsgWorkThread* pMsgWorkThreadIn, CBbAddrPool* pBbAddrPoolIn, uint32 nMsgMagicIn,
+             bool fInBoundIn, uint64 nNetIdIn, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, bool fAllowAllAddrIn);
     ~CNetPeer();
 
-    bool DoRecvPacket(CMthNetPackData *pPackData);
+    bool DoRecvPacket(CMthNetPackData* pPackData);
     bool DoOutBoundConnectSuccess(CMthNetEndpoint& tLocalEpIn);
 
 private:
@@ -71,8 +74,8 @@ private:
     time_t tmStateBeginTime;
 
     uint32 nMsgMagic;
-    CMsgWorkThread *pMsgWorkThread;
-    CBbAddrPool *pBbAddrPool;
+    CMsgWorkThread* pMsgWorkThread;
+    CBbAddrPool* pBbAddrPool;
 
     uint64 nPeerNetId;
     CMthNetEndpoint tPeerEp;

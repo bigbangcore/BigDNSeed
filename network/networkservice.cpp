@@ -3,9 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "networkservice.h"
+
+#include "nbase/mthbase.h"
 #include "networkthread.h"
 #include "tcpconnect.h"
-#include "nbase/mthbase.h"
 
 using namespace std;
 using namespace nbase;
@@ -13,10 +14,9 @@ using namespace nbase;
 namespace network
 {
 
-
 //---------------------------------------------------------------------------------------------------------
-CTcpListenNode::CTcpListenNode(boost::asio::io_service& io, CMthNetEndpoint& addr) : 
-    acceptorService(io), tListenAddr(addr)
+CTcpListenNode::CTcpListenNode(boost::asio::io_service& io, CMthNetEndpoint& addr)
+  : acceptorService(io), tListenAddr(addr)
 {
     ui64ListenNetId = CBaseUniqueId::CreateUniqueId(0, 0, 1, 0);
 }
@@ -41,9 +41,7 @@ bool CTcpListenNode::StartListen()
             acceptorService.bind(epListen, ec);
             if (ec)
             {
-                throw runtime_error((string("Tcp bind fail, addr: ") +
-                                    epListen.address().to_string() + string(":") + to_string(epListen.port()) +
-                                    string(", cause: ") + ec.message()).c_str());
+                throw runtime_error((string("Tcp bind fail, addr: ") + epListen.address().to_string() + string(":") + to_string(epListen.port()) + string(", cause: ") + ec.message()).c_str());
             }
         }
         else if (tListenAddr.GetIpType() == CMthNetIp::MNI_IPV6)
@@ -53,14 +51,12 @@ bool CTcpListenNode::StartListen()
             acceptorService.open(epListen.protocol());
             acceptorService.set_option(tcp::acceptor::reuse_address(true));
             acceptorService.set_option(boost::asio::ip::v6_only(true));
-            
+
             boost::system::error_code ec;
             acceptorService.bind(epListen, ec);
             if (ec)
             {
-                throw runtime_error((string("Tcp bind fail, addr: ") +
-                                    epListen.address().to_string() + string(":") + to_string(epListen.port()) +
-                                    string(", cause: ") + ec.message()).c_str());
+                throw runtime_error((string("Tcp bind fail, addr: ") + epListen.address().to_string() + string(":") + to_string(epListen.port()) + string(", cause: ") + ec.message()).c_str());
             }
         }
         else
@@ -91,15 +87,13 @@ void CTcpListenNode::StopListen()
     acceptorService.close();
 }
 
-
-
 //---------------------------------------------------------------------------------------------------------
-CNetWorkService::CNetWorkService(uint32 nWorkThreadCount) : 
-    workListen(ioServiceListen),pThreadListenWork(NULL)
+CNetWorkService::CNetWorkService(uint32 nWorkThreadCount)
+  : workListen(ioServiceListen), pThreadListenWork(NULL)
 {
     if (nWorkThreadCount == 0)
     {
-        ui32NetWorkThreadCount =  boost::thread::hardware_concurrency();
+        ui32NetWorkThreadCount = boost::thread::hardware_concurrency();
         if (ui32NetWorkThreadCount == 0)
         {
             ui32NetWorkThreadCount = 1;
@@ -114,7 +108,7 @@ CNetWorkService::CNetWorkService(uint32 nWorkThreadCount) :
         }
     }
 
-    for (int i=0; i<ui32NetWorkThreadCount; i++)
+    for (int i = 0; i < ui32NetWorkThreadCount; i++)
     {
         pNetworkThreadTable[i] = new CNetWorkThread(i, *this);
         ui32PortStatTable[i] = 0;
@@ -123,17 +117,16 @@ CNetWorkService::CNetWorkService(uint32 nWorkThreadCount) :
 
 CNetWorkService::~CNetWorkService()
 {
-    for (int i=0; i<ui32NetWorkThreadCount; i++)
+    for (int i = 0; i < ui32NetWorkThreadCount; i++)
     {
         delete pNetworkThreadTable[i];
         pNetworkThreadTable[i] = NULL;
     }
 }
 
-
 //------------------------------------------------------------------------------------
 bool CNetWorkService::StartService()
-{ 
+{
     if (!StartAllNetWorkThread())
     {
         return false;
@@ -181,7 +174,7 @@ uint64 CNetWorkService::AddTcpIPV6Listen(uint16 nListenPort)
 
 uint64 CNetWorkService::AddTcpListen(CMthNetEndpoint& addrListen)
 {
-    CTcpListenNode *pNode;
+    CTcpListenNode* pNode;
     uint64 nNetId;
 
     nNetId = QueryTcpListenNetId(addrListen);
@@ -209,7 +202,7 @@ uint64 CNetWorkService::AddTcpListen(CMthNetEndpoint& addrListen)
         return 0;
     }
 
-    for (int i=0; i<ui32NetWorkThreadCount; i++)
+    for (int i = 0; i < ui32NetWorkThreadCount; i++)
     {
         PostMinAccept(pNode->GetNetId(), addrListen);
     }
@@ -223,7 +216,7 @@ void CNetWorkService::RemoveTcpListen(uint64 nTcpListenNetId)
     it = mapTcpListen.find(nTcpListenNetId);
     if (it != mapTcpListen.end())
     {
-        CTcpListenNode *pNode = (*it).second;
+        CTcpListenNode* pNode = (*it).second;
         mapTcpListen.erase(nTcpListenNetId);
         if (pNode)
         {
@@ -236,7 +229,7 @@ void CNetWorkService::RemoveTcpListen(uint64 nTcpListenNetId)
 
 uint64 CNetWorkService::QueryTcpListenNetId(CMthNetEndpoint& addrListen)
 {
-    CTcpListenNode *pNode;
+    CTcpListenNode* pNode;
     std::map<uint64, CTcpListenNode*>::iterator it;
     for (it = mapTcpListen.begin(); it != mapTcpListen.end(); it++)
     {
@@ -255,7 +248,7 @@ bool CNetWorkService::QueryTcpListenAddress(uint64 nListenNetId, CMthNetEndpoint
     it = mapTcpListen.find(nListenNetId);
     if (it != mapTcpListen.end())
     {
-        CTcpListenNode *pNode;
+        CTcpListenNode* pNode;
         pNode = it->second;
         if (pNode)
         {
@@ -266,12 +259,11 @@ bool CNetWorkService::QueryTcpListenAddress(uint64 nListenNetId, CMthNetEndpoint
     return false;
 }
 
-
 CNetDataQueue& CNetWorkService::GetWorkRecvQueue(uint32 nWorkThreadIndex)
 {
-    if (nWorkThreadIndex >= ui32NetWorkThreadCount) 
+    if (nWorkThreadIndex >= ui32NetWorkThreadCount)
     {
-        nWorkThreadIndex = ui32NetWorkThreadCount-1;
+        nWorkThreadIndex = ui32NetWorkThreadCount - 1;
     }
     return pNetworkThreadTable[nWorkThreadIndex]->GetRecvQueue();
 }
@@ -317,12 +309,10 @@ void CNetWorkService::RemoveNetPort(uint64 nNetId)
     {
         CMthNetEndpoint tPeer;
         CMthNetEndpoint tLocal;
-        CMthNetPackData *pNvBuf = new CMthNetPackData(nNetId, NET_MSG_TYPE_CLOSE, NET_DIS_CAUSE_LOCAL_CLOSE, tPeer, tLocal);
+        CMthNetPackData* pNvBuf = new CMthNetPackData(nNetId, NET_MSG_TYPE_CLOSE, NET_DIS_CAUSE_LOCAL_CLOSE, tPeer, tLocal);
         pNwThread->PostSendData(pNvBuf);
     }
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 void CNetWorkService::ListenWork()
@@ -332,7 +322,7 @@ void CNetWorkService::ListenWork()
 
 bool CNetWorkService::StartAllNetWorkThread()
 {
-    for (uint32 i=0; i<ui32NetWorkThreadCount; i++)
+    for (uint32 i = 0; i < ui32NetWorkThreadCount; i++)
     {
         if (!pNetworkThreadTable[i]->Start())
         {
@@ -345,7 +335,7 @@ bool CNetWorkService::StartAllNetWorkThread()
 
 void CNetWorkService::StopAllNetWorkThread()
 {
-    for (uint32 i=0; i<ui32NetWorkThreadCount; i++)
+    for (uint32 i = 0; i < ui32NetWorkThreadCount; i++)
     {
         pNetworkThreadTable[i]->Stop();
     }
@@ -354,7 +344,7 @@ void CNetWorkService::StopAllNetWorkThread()
 void CNetWorkService::RemoveAllTcpListen()
 {
     std::map<uint64, CTcpListenNode*>::iterator it;
-    for (it = mapTcpListen.begin(); it != mapTcpListen.end(); )
+    for (it = mapTcpListen.begin(); it != mapTcpListen.end();)
     {
         uint64 nNetId = it->first;
         it++;
@@ -378,7 +368,7 @@ uint32 CNetWorkService::AddStatNetPort()
     boost::unique_lock<boost::shared_mutex> writeLock(lockStatCount);
     uint32 uiMinCount = 0xFFFFFFFF;
     uint32 uiMinIndex = 0;
-    for (uint32 i=0; i<ui32NetWorkThreadCount; i++)
+    for (uint32 i = 0; i < ui32NetWorkThreadCount; i++)
     {
         if (ui32PortStatTable[i] < uiMinCount)
         {
@@ -411,36 +401,40 @@ void CNetWorkService::PostMinAccept(uint64 nListenNetId, CMthNetEndpoint& epList
             std::map<uint64, CTcpListenNode*>::iterator it = mapTcpListen.find(nListenNetId);
             if (it != mapTcpListen.end() && it->second)
             {
-                it->second->GetAcceptor().async_accept(pTcpConnect->socketClient, 
-                    boost::bind(&CNetWorkService::HandleListenAccept, this,
-                    pTcpConnect, boost::asio::placeholders::error));
-                return ;
+                it->second->GetAcceptor().async_accept(pTcpConnect->socketClient,
+                                                       boost::bind(&CNetWorkService::HandleListenAccept, this,
+                                                                   pTcpConnect, boost::asio::placeholders::error));
+                return;
             }
+            delete pTcpConnect;
         }
     }
     RemoveStatNetPort(nWorkThreadIndex);
 }
 
-
-void CNetWorkService::HandleListenAccept(CTcpConnect* pTcpConnect, const boost::system::error_code &ec)
+void CNetWorkService::HandleListenAccept(CTcpConnect* pTcpConnect, const boost::system::error_code& ec)
 {
-    PostMinAccept(pTcpConnect->ui64LinkListenNetId, pTcpConnect->epLinkListen);
-
-    if (!ec)
+    if (pTcpConnect)
     {
-        CNetWorkThread *pNetWorkThread = GetNetWorkThreadByNetId(pTcpConnect->ui64TcpConnNetId);
-        if (pNetWorkThread)
+        PostMinAccept(pTcpConnect->ui64LinkListenNetId, pTcpConnect->epLinkListen);
+        if (!ec)
         {
-            pNetWorkThread->PostAccept(pTcpConnect);
-            return;
+            CNetWorkThread* pNetWorkThread = GetNetWorkThreadByNetId(pTcpConnect->ui64TcpConnNetId);
+            if (pNetWorkThread)
+            {
+                pNetWorkThread->PostAccept(pTcpConnect);
+                return;
+            }
         }
+        CBaseUniqueId tNetId(pTcpConnect->ui64TcpConnNetId);
+        uint32 nThreadIndex = tNetId.GetType();
+        RemoveStatNetPort(nThreadIndex);
+        delete pTcpConnect;
     }
-
-    CBaseUniqueId tNetId(pTcpConnect->ui64TcpConnNetId);
-    uint32 nThreadIndex = tNetId.GetType();
-    RemoveStatNetPort(nThreadIndex);
-    delete pTcpConnect;
+    else
+    {
+        blockhead::StdError(__PRETTY_FUNCTION__, "pTcpConnect is NULL.");
+    }
 }
 
-}  // namespace network
-
+} // namespace network

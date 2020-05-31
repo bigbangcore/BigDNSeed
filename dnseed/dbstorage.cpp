@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "dbstorage.h"
+
 #include "addrpool.h"
 
 using namespace std;
@@ -10,9 +11,8 @@ using namespace std;
 namespace dnseed
 {
 
-
-CDbStorage::CDbStorage() : 
-    pAddrPool(NULL),pThreadDbAcc(NULL),fRunFlag(false),pDbConn(NULL)
+CDbStorage::CDbStorage()
+  : pAddrPool(NULL), pThreadDbAcc(NULL), fRunFlag(false), pDbConn(NULL)
 {
     nCfgStatTimeLen = DDN_D_STAT_TIME;
     fCfgShowStat = true;
@@ -24,8 +24,8 @@ CDbStorage::CDbStorage() :
     nPrevUpdateCount = 0;
 }
 
-CDbStorage::CDbStorage(CDbcConfig *pDbCfg, CBbAddrPool* pPool) : 
-    pAddrPool(pPool),pThreadDbAcc(NULL),fRunFlag(false),pDbConn(NULL)
+CDbStorage::CDbStorage(CDbcConfig* pDbCfg, CBbAddrPool* pPool)
+  : pAddrPool(pPool), pThreadDbAcc(NULL), fRunFlag(false), pDbConn(NULL)
 {
     nCfgStatTimeLen = DDN_D_STAT_TIME;
     fCfgShowStat = true;
@@ -50,8 +50,7 @@ CDbStorage::~CDbStorage()
     }
 }
 
-
-void CDbStorage::SetDbConfig(CDbcConfig *pDbCfg)
+void CDbStorage::SetDbConfig(CDbcConfig* pDbCfg)
 {
     pDbConn = CDbcDbConnect::DbcCreateDbConnObj(*pDbCfg);
 }
@@ -102,7 +101,7 @@ bool CDbStorage::PostDbMessage(CDNSeedNode* pMsg)
 
 bool CDbStorage::ReqFetchAddr()
 {
-    CDNSeedNode *pNode = new CDNSeedNode(DDN_E_MSG_TYPE_FETCH);
+    CDNSeedNode* pNode = new CDNSeedNode(DDN_E_MSG_TYPE_FETCH);
     return tDbMsgQueue.SetData(pNode);
 }
 
@@ -117,7 +116,6 @@ void CDbStorage::SetStatParam(bool fShowStatIn, uint32 nStatTimeIn)
     nCfgStatTimeLen = nStatTimeIn;
 }
 
-
 //----------------------------------------------------------------------------
 void CDbStorage::Work()
 {
@@ -130,7 +128,7 @@ void CDbStorage::Work()
     while (fRunFlag)
     {
         DoTimer();
-        CDNSeedNode *pNode = NULL;
+        CDNSeedNode* pNode = NULL;
         if (!tDbMsgQueue.GetData(pNode, 100) || pNode == NULL)
         {
             continue;
@@ -167,12 +165,12 @@ void CDbStorage::DoTimer()
 
         if (fCfgShowStat)
         {
-            char sBuf[512] = {0};
-            sprintf(sBuf, "db queue: %d, Insert: %ld-%ld, Delete: %ld-%ld, Update: %ld-%ld.", 
-                tDbMsgQueue.GetCount(), 
-                nInsertCount, (nInsertCount - nPrevInsertCount) / nCfgStatTimeLen, 
-                nDeleteCount, (nDeleteCount - nPrevDeleteCount) / nCfgStatTimeLen, 
-                nUpdateCount, (nUpdateCount - nPrevUpdateCount) / nCfgStatTimeLen);
+            char sBuf[512] = { 0 };
+            sprintf(sBuf, "db queue: %d, Insert: %ld-%ld, Delete: %ld-%ld, Update: %ld-%ld.",
+                    tDbMsgQueue.GetCount(),
+                    nInsertCount, (nInsertCount - nPrevInsertCount) / nCfgStatTimeLen,
+                    nDeleteCount, (nDeleteCount - nPrevDeleteCount) / nCfgStatTimeLen,
+                    nUpdateCount, (nUpdateCount - nPrevUpdateCount) / nCfgStatTimeLen);
             blockhead::StdLog("STAT", sBuf);
         }
 
@@ -204,17 +202,16 @@ void CDbStorage::DoMessage(CDNSeedNode* pNode)
     }
 }
 
-
 bool CDbStorage::CreateTables()
 {
     if (!pDbConn->ExecuteStaticSql("CREATE TABLE IF NOT EXISTS dnseednode("
-                        "id INT NOT NULL AUTO_INCREMENT,"
-                        "address varchar(64) NOT NULL,"
-                        "port INT NOT NULL,"
-                        "service BIGINT NOT NULL,"
-                        "score INT NOT NULL,"
-                        "PRIMARY KEY (id),"
-                        "KEY i_address_port (address,port))"))
+                                   "id INT NOT NULL AUTO_INCREMENT,"
+                                   "address varchar(64) NOT NULL,"
+                                   "port INT NOT NULL,"
+                                   "service BIGINT NOT NULL,"
+                                   "score INT NOT NULL,"
+                                   "PRIMARY KEY (id),"
+                                   "KEY i_address_port (address,port))"))
     {
         cerr << "create tables fail.\n";
         return false;
@@ -284,7 +281,7 @@ void CDbStorage::HandleInsertNode(CDNSeedNode* pNode)
 void CDbStorage::HandleUpdateNode(CDNSeedNode* pNode)
 {
     std::ostringstream oss;
-    oss << "UPDATE dnseednode SET service="<<pNode->nService <<",score=" << pNode->iScore << " WHERE address=\'" 
+    oss << "UPDATE dnseednode SET service=" << pNode->nService << ",score=" << pNode->iScore << " WHERE address=\'"
         << pDbConn->ToEscString(pNode->strIp) << "\' AND port=" << pNode->nPort;
     std::string strSql = oss.str();
     pDbConn->ExecuteStaticSql(strSql);
@@ -293,7 +290,7 @@ void CDbStorage::HandleUpdateNode(CDNSeedNode* pNode)
 void CDbStorage::HandleDeleteNode(CDNSeedNode* pNode)
 {
     std::ostringstream oss;
-    oss << "DELETE FROM dnseednode WHERE address=\'" 
+    oss << "DELETE FROM dnseednode WHERE address=\'"
         << pDbConn->ToEscString(pNode->strIp) << "\' AND port=" << pNode->nPort;
     std::string strSql = oss.str();
     pDbConn->ExecuteStaticSql(strSql);
@@ -302,27 +299,26 @@ void CDbStorage::HandleDeleteNode(CDNSeedNode* pNode)
 bool CDbStorage::QueryAddrIfExist(CDNSeedNode* pNode)
 {
     std::ostringstream oss;
-    oss << "SELECT count(*) FROM dnseednode WHERE address=\'" 
+    oss << "SELECT count(*) FROM dnseednode WHERE address=\'"
         << pDbConn->ToEscString(pNode->strIp) << "\' AND port=" << pNode->nPort;
     std::string strSql = oss.str();
 
     CDbcSelect* pSelect = pDbConn->Query(strSql);
     if (pSelect == NULL || !pSelect->MoveNext())
     {
-        pSelect->Release();   
+        pSelect->Release();
         return false;
     }
 
     uint32 nCount = 0;
     if (!pSelect->GetField(0, nCount) || nCount == 0)
     {
-        pSelect->Release();   
+        pSelect->Release();
         return false;
     }
     pSelect->Release();
-    
+
     return true;
 }
 
-}  // namespace dnseed
-
+} // namespace dnseed

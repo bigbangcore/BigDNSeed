@@ -1,6 +1,7 @@
 // mthbase.cpp
 
 #include "mthbase.h"
+
 #include "blockhead/util.h"
 
 using namespace std;
@@ -8,8 +9,7 @@ using namespace std;
 namespace nbase
 {
 
-
-//----------------------------------------------------------------------------------------   
+//----------------------------------------------------------------------------------------
 uint32 CBaseUniqueId::uiIdCreate = 0;
 boost::mutex CBaseUniqueId::lockCreate;
 
@@ -34,7 +34,7 @@ uint64 CBaseUniqueId::CreateUniqueId(uint8 ucPortType, uint8 ucDirection, uint8 
     ((PBASE_UNIQUE_ID)&ui64UniqueId)->ucType = ucType;
     ((PBASE_UNIQUE_ID)&ui64UniqueId)->ucSubType = ucSubType;
     ((PBASE_UNIQUE_ID)&ui64UniqueId)->ucRand = blockhead::GetTimeMillis() & 0xFF;
-    
+
     if (++uiIdCreate == 0)
     {
         uiIdCreate = 1;
@@ -43,8 +43,7 @@ uint64 CBaseUniqueId::CreateUniqueId(uint8 ucPortType, uint8 ucDirection, uint8 
     return ui64UniqueId;
 }
 
-
-//----------------------------------------------------------------------------------------    
+//----------------------------------------------------------------------------------------
 void CMthEvent::SetEvent()
 {
     boost::unique_lock<boost::mutex> lock(lockEvent);
@@ -81,7 +80,7 @@ void CMthEvent::ResetEvent()
     fSingleFlag = false;
 }
 
-bool CMthEvent::AddWait(CMthWait *pWait)
+bool CMthEvent::AddWait(CMthWait* pWait)
 {
     boost::unique_lock<boost::mutex> lock(lockEvent);
     if (pWait == NULL)
@@ -91,7 +90,7 @@ bool CMthEvent::AddWait(CMthWait *pWait)
 
     if (mapWait.count(pWait->GetWaitId()) == 0)
     {
-        if (!mapWait.insert(make_pair(pWait->GetWaitId(),pWait)).second)
+        if (!mapWait.insert(make_pair(pWait->GetWaitId(), pWait)).second)
         {
             return false;
         }
@@ -100,12 +99,12 @@ bool CMthEvent::AddWait(CMthWait *pWait)
     return true;
 }
 
-void CMthEvent::DelWait(CMthWait *pWait)
+void CMthEvent::DelWait(CMthWait* pWait)
 {
     boost::unique_lock<boost::mutex> lock(lockEvent);
     if (pWait == NULL)
     {
-        return ;
+        return;
     }
 
     if (mapWait.count(pWait->GetWaitId()))
@@ -156,8 +155,6 @@ bool CMthEvent::Wait(uint32 ui32Timeout)
     return fIfHasSig;
 }
 
-
-
 //----------------------------------------------------------------------------------
 CMthWait::~CMthWait()
 {
@@ -174,7 +171,7 @@ CMthWait::~CMthWait()
     }
 }
 
-bool CMthWait::AddEvent(CMthEvent *pEvent, int iEventFlag)
+bool CMthWait::AddEvent(CMthEvent* pEvent, int iEventFlag)
 {
     boost::unique_lock<boost::mutex> lock(lockWait);
     if (pEvent == NULL || iEventFlag < 0)
@@ -208,7 +205,7 @@ bool CMthWait::AddEvent(CMthEvent *pEvent, int iEventFlag)
         pNmEvent->pEvent = pEvent;
         pNmEvent->fSignalFlag = false;
 
-        if (!mapEvent.insert(make_pair(pEvent->GetEventId(),pNmEvent)).second)
+        if (!mapEvent.insert(make_pair(pEvent->GetEventId(), pNmEvent)).second)
         {
             delete pNmEvent;
             pEvent->DelWait(this);
@@ -219,12 +216,12 @@ bool CMthWait::AddEvent(CMthEvent *pEvent, int iEventFlag)
     return true;
 }
 
-void CMthWait::DelEvent(CMthEvent *pEvent)
+void CMthWait::DelEvent(CMthEvent* pEvent)
 {
     boost::unique_lock<boost::mutex> lock(lockWait);
     if (pEvent == NULL)
     {
-        return ;
+        return;
     }
 
     if (mapEvent.count(pEvent->GetEventId()))
@@ -240,12 +237,12 @@ void CMthWait::DelEvent(CMthEvent *pEvent)
     }
 }
 
-void CMthWait::SetSignal(CMthEvent *pEvent)
+void CMthWait::SetSignal(CMthEvent* pEvent)
 {
     boost::unique_lock<boost::mutex> lock(lockWait);
     if (pEvent == NULL)
     {
-        return ;
+        return;
     }
 
     if (mapEvent.count(pEvent->GetEventId()))
@@ -280,7 +277,7 @@ int CMthWait::Wait(uint32 ui32Timeout)
                 if (pNmEvent && pNmEvent->fSignalFlag)
                 {
                     pNmEvent->fSignalFlag = false;
-                    ui32WaitPos = (ui32WaitPos+1) % mapEvent.size();
+                    ui32WaitPos = (ui32WaitPos + 1) % mapEvent.size();
                     return pNmEvent->iEventFlag;
                 }
             }
@@ -294,7 +291,7 @@ int CMthWait::Wait(uint32 ui32Timeout)
                 if (pNmEvent && pNmEvent->fSignalFlag)
                 {
                     pNmEvent->fSignalFlag = false;
-                    ui32WaitPos = (ui32WaitPos+1) % mapEvent.size();
+                    ui32WaitPos = (ui32WaitPos + 1) % mapEvent.size();
                     return pNmEvent->iEventFlag;
                 }
             }
@@ -320,4 +317,3 @@ int CMthWait::Wait(uint32 ui32Timeout)
 }
 
 } // namespace nbase
-

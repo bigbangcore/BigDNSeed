@@ -7,11 +7,12 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <boost/regex.hpp>
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/thread.hpp>
+#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
+#include <boost/thread.hpp>
+
 #include "blockhead/type.h"
 #include "nbase/mthbase.h"
 #include "networkbase.h"
@@ -29,13 +30,20 @@ class CTcpConnect
 {
     friend class CNetWorkService;
     friend class CNetWorkThread;
+
 public:
     CTcpConnect(CNetWorkThread& inNetWorkThread, uint64 nListenNetId, CMthNetEndpoint& epListen);
     CTcpConnect(CNetWorkThread& inNetWorkThread, CMthNetEndpoint& epPeer);
     ~CTcpConnect();
 
-    uint64 GetTcpConnNetId() const {return ui64TcpConnNetId;}
-    tcp::socket& GetSocketId() {return socketClient;}
+    uint64 GetTcpConnNetId() const
+    {
+        return ui64TcpConnNetId;
+    }
+    tcp::socket& GetSocketId()
+    {
+        return socketClient;
+    }
 
     bool Accept();
     void TcpRemove(E_DISCONNECT_CAUSE eCloseCause);
@@ -48,8 +56,8 @@ public:
     void DoRemoveTimer();
 
 private:
-    void HandleRead(const boost::system::error_code &ec, std::size_t bytes_transferred);
-    void HandleWrite(const boost::system::error_code &ec, std::size_t bytes_transferred);
+    void HandleRead(const boost::system::error_code& ec, std::size_t bytes_transferred);
+    void HandleWrite(const boost::system::error_code& ec, std::size_t bytes_transferred);
 
 private:
     bool fInBound;
@@ -74,7 +82,6 @@ private:
     uint32 nPostRecvOpCount;
 };
 
-
-}  // namespace network
+} // namespace network
 
 #endif //__NETWORK_TCPCONNECT_H

@@ -5,18 +5,17 @@
 #ifndef __DNSEED_DISPATCHER_H
 #define __DNSEED_DISPATCHER_H
 
-#include "network/networkservice.h"
-#include "netmsgwork.h"
 #include "addrpool.h"
-#include "dbstorage.h"
 #include "config.h"
+#include "dbstorage.h"
+#include "netmsgwork.h"
+#include "network/networkservice.h"
 
 namespace dnseed
 {
 
 using namespace std;
 using namespace network;
-
 
 class CDispatcher
 {
@@ -33,12 +32,12 @@ public:
     void Timer();
 
 private:
-    CDnseedConfig *pDnseedCfg;
+    CDnseedConfig* pDnseedCfg;
 
-    CNetWorkService *pNetWorkService;
-    CWorkThreadPool *pWorkThreadPool;
-    CDbStorage *pDbStorage;
-    CBbAddrPool *pBbAddrPool;
+    CNetWorkService* pNetWorkService;
+    CWorkThreadPool* pWorkThreadPool;
+    CDbStorage* pDbStorage;
+    CBbAddrPool* pBbAddrPool;
 
     CRunStatData tPrevStatData;
     time_t tmPrevStatTime;

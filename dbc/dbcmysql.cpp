@@ -3,8 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "dbcmysql.h"
+
 #include <iostream>
+
 #include "string.h"
+
 
 using namespace std;
 
@@ -17,7 +20,7 @@ class CMysqlLib
 public:
     CMysqlLib()
     {
-        mysql_library_init(0,NULL,NULL);
+        mysql_library_init(0, NULL, NULL);
     }
     ~CMysqlLib()
     {
@@ -27,10 +30,9 @@ public:
 
 static CMysqlLib __mysqlLib;
 
-
 //-----------------------------------------------------------------------------
-CDbcMysqlSelect::CDbcMysqlSelect(CDbcMysqlDbConnect* pDbConnIn, const string& strSqlIn) : 
-    pDbConn(pDbConnIn),strSql(strSqlIn),pMysqlRes(NULL),pMysqlRow(NULL),uiFieldCount(0),pFieldLenTable(NULL)
+CDbcMysqlSelect::CDbcMysqlSelect(CDbcMysqlDbConnect* pDbConnIn, const string& strSqlIn)
+  : pDbConn(pDbConnIn), strSql(strSqlIn), pMysqlRes(NULL), pMysqlRow(NULL), uiFieldCount(0), pFieldLenTable(NULL)
 {
 }
 
@@ -58,7 +60,7 @@ bool CDbcMysqlSelect::Query()
     if (mysql_real_query(&pDbConn->tMysqlConn, strSql.c_str(), strSql.size()))
     {
         fprintf(stderr, "Failed to execute mysql_real_query: Error: %s.\n",
-            mysql_error(&pDbConn->tMysqlConn));
+                mysql_error(&pDbConn->tMysqlConn));
         return false;
     }
 
@@ -74,7 +76,7 @@ bool CDbcMysqlSelect::Query()
     if (pMysqlRes == NULL)
     {
         fprintf(stderr, "Failed to execute mysql_store_result: Error: %s.\n",
-            mysql_error(&pDbConn->tMysqlConn));
+                mysql_error(&pDbConn->tMysqlConn));
         return false;
     }
 
@@ -82,7 +84,6 @@ bool CDbcMysqlSelect::Query()
 
     return true;
 }
-
 
 //------------------------------------------------------------------------------------
 void CDbcMysqlSelect::Release()
@@ -239,7 +240,7 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, unsigned int& uiValue)
     {
         return false;
     }
-    uiValue = (unsigned int)(std::stoul(pMysqlRow[uiFieldIndex],nullptr,10));
+    uiValue = (unsigned int)(std::stoul(pMysqlRow[uiFieldIndex], nullptr, 10));
     return true;
 }
 
@@ -249,7 +250,7 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, long& lValue)
     {
         return false;
     }
-    lValue = std::stol(pMysqlRow[uiFieldIndex],nullptr,10);
+    lValue = std::stol(pMysqlRow[uiFieldIndex], nullptr, 10);
     return true;
 }
 
@@ -259,7 +260,7 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, unsigned long& ulValue
     {
         return false;
     }
-    ulValue = std::stoul(pMysqlRow[uiFieldIndex],nullptr,10);
+    ulValue = std::stoul(pMysqlRow[uiFieldIndex], nullptr, 10);
     return true;
 }
 
@@ -269,7 +270,7 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, long long& llValue)
     {
         return false;
     }
-    llValue = std::stoll(pMysqlRow[uiFieldIndex],nullptr,10);
+    llValue = std::stoll(pMysqlRow[uiFieldIndex], nullptr, 10);
     return true;
 }
 
@@ -279,7 +280,7 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, unsigned long long& ul
     {
         return false;
     }
-    ullValue = std::stoull(pMysqlRow[uiFieldIndex],nullptr,10);
+    ullValue = std::stoull(pMysqlRow[uiFieldIndex], nullptr, 10);
     return true;
 }
 
@@ -289,7 +290,7 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, float& fValue)
     {
         return false;
     }
-    fValue = std::stof(pMysqlRow[uiFieldIndex],nullptr);
+    fValue = std::stof(pMysqlRow[uiFieldIndex], nullptr);
     return true;
 }
 
@@ -299,7 +300,7 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, double& dValue)
     {
         return false;
     }
-    dValue = std::stod(pMysqlRow[uiFieldIndex],nullptr);
+    dValue = std::stod(pMysqlRow[uiFieldIndex], nullptr);
     return true;
 }
 
@@ -332,8 +333,8 @@ bool CDbcMysqlSelect::GetField(unsigned int uiFieldIndex, vector<unsigned char>&
 }
 
 //---------------------------------------------------------------------------------------
-CDbcMysqlDbConnect::CDbcMysqlDbConnect(CDbcConfig& tDbcCfgIn) : 
-    tDbcCfg(tDbcCfgIn), fIsConnect(false),fIsAutoCommit(true),iStaticExeCount(0),iCommitCount(0)
+CDbcMysqlDbConnect::CDbcMysqlDbConnect(CDbcConfig& tDbcCfgIn)
+  : tDbcCfg(tDbcCfgIn), fIsConnect(false), fIsAutoCommit(true), iStaticExeCount(0), iCommitCount(0)
 {
     mysql_init(&tMysqlConn);
 }
@@ -352,13 +353,14 @@ bool CDbcMysqlDbConnect::PrConnectDb()
     }
 
     fRet = (mysql_real_connect(
-        &tMysqlConn,
-        tDbcCfg.sDbIp.c_str(),
-        tDbcCfg.sDbUser.c_str(),
-        tDbcCfg.sDbPwd.c_str(),
-        tDbcCfg.sDbName.c_str(),
-        tDbcCfg.usDbPort,
-        NULL,0) != NULL);
+                &tMysqlConn,
+                tDbcCfg.sDbIp.c_str(),
+                tDbcCfg.sDbUser.c_str(),
+                tDbcCfg.sDbPwd.c_str(),
+                tDbcCfg.sDbName.c_str(),
+                tDbcCfg.usDbPort,
+                NULL, 0)
+            != NULL);
     if (fRet)
     {
         fIsConnect = true;
@@ -375,7 +377,7 @@ bool CDbcMysqlDbConnect::PrConnectDb()
     else
     {
         fprintf(stderr, "Failed to connect to database: Error: %s.\n",
-            mysql_error(&tMysqlConn));
+                mysql_error(&tMysqlConn));
     }
 
     return fRet;
@@ -417,7 +419,6 @@ void CDbcMysqlDbConnect::PrCommit()
     }
 }
 
-
 //------------------------------------------------------------------------------
 bool CDbcMysqlDbConnect::ConnectDb()
 {
@@ -437,7 +438,7 @@ void CDbcMysqlDbConnect::Timer()
     if (mysql_ping(&tMysqlConn) != 0)
     {
         fprintf(stderr, "Failed to mysql_ping: Error: %s.\n",
-            mysql_error(&tMysqlConn));
+                mysql_error(&tMysqlConn));
         return;
     }
     PrCommit();
@@ -493,7 +494,7 @@ bool CDbcMysqlDbConnect::ExecuteStaticSql(const string& strSql)
     if (mysql_real_query(&tMysqlConn, strSql.c_str(), strSql.size()))
     {
         fprintf(stderr, "Failed to execute mysql_real_query: Error: %s, Sql: %s.\n",
-            mysql_error(&tMysqlConn), strSql.c_str());
+                mysql_error(&tMysqlConn), strSql.c_str());
         return false;
     }
     iStaticExeCount++;
@@ -512,7 +513,7 @@ CDbcSelect* CDbcMysqlDbConnect::Query(const string& strSql)
     {
         return NULL;
     }
-    CDbcMysqlSelect *pSelect = new CDbcMysqlSelect(this, strSql);
+    CDbcMysqlSelect* pSelect = new CDbcMysqlSelect(this, strSql);
     if (!pSelect->Query())
     {
         delete pSelect;
@@ -529,13 +530,13 @@ void CDbcMysqlDbConnect::Release()
 string CDbcMysqlDbConnect::ToEscString(const string& str)
 {
     char s[str.size() * 2 + 1];
-    return string(s, mysql_real_escape_string(&tMysqlConn,s,str.c_str(),str.size())); 
+    return string(s, mysql_real_escape_string(&tMysqlConn, s, str.c_str(), str.size()));
 }
 
-string CDbcMysqlDbConnect::ToEscString(const void* pBinary,size_t nBytes)
+string CDbcMysqlDbConnect::ToEscString(const void* pBinary, size_t nBytes)
 {
     char s[nBytes * 2 + 1];
-    return string(s, mysql_real_escape_string(&tMysqlConn,s,(const char*)pBinary,nBytes));
+    return string(s, mysql_real_escape_string(&tMysqlConn, s, (const char*)pBinary, nBytes));
 }
 
 } // namespace dbc

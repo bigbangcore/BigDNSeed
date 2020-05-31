@@ -7,11 +7,12 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <boost/regex.hpp>
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/thread.hpp>
+#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
+#include <boost/thread.hpp>
+
 #include "blockhead/type.h"
 #include "nbase/mthbase.h"
 #include "networkbase.h"
@@ -34,9 +35,18 @@ public:
     bool StartListen();
     void StopListen();
 
-    uint64 GetNetId() const {return ui64ListenNetId;}
-    CMthNetEndpoint& GetListenAddr() {return tListenAddr;}
-    tcp::acceptor& GetAcceptor() {return acceptorService;}
+    uint64 GetNetId() const
+    {
+        return ui64ListenNetId;
+    }
+    CMthNetEndpoint& GetListenAddr()
+    {
+        return tListenAddr;
+    }
+    tcp::acceptor& GetAcceptor()
+    {
+        return acceptorService;
+    }
 
 private:
     uint64 ui64ListenNetId;
@@ -44,21 +54,24 @@ private:
     tcp::acceptor acceptorService;
 };
 
-
 class CNetWorkThread;
 class CTcpConnect;
 
 class CNetWorkService
 {
     friend class CNetWorkThread;
+
 public:
-    CNetWorkService(uint32 nWorkThreadCount=0);
+    CNetWorkService(uint32 nWorkThreadCount = 0);
     ~CNetWorkService();
 
     bool StartService();
     void StopService();
 
-    uint32 GetWorkThreadCount() const {return ui32NetWorkThreadCount;}
+    uint32 GetWorkThreadCount() const
+    {
+        return ui32NetWorkThreadCount;
+    }
 
     uint64 AddTcpIPV4Listen(uint16 nListenPort);
     uint64 AddTcpIPV6Listen(uint16 nListenPort);
@@ -87,10 +100,10 @@ private:
 
     void PostMinAccept(uint64 nListenNetId, CMthNetEndpoint& epListen);
 
-    void HandleListenAccept(CTcpConnect* pTcpConnect, const boost::system::error_code &ec);
+    void HandleListenAccept(CTcpConnect* pTcpConnect, const boost::system::error_code& ec);
 
 private:
-    boost::thread *pThreadListenWork;
+    boost::thread* pThreadListenWork;
     boost::asio::io_service ioServiceListen;
     boost::asio::io_service::work workListen;
 
@@ -100,10 +113,9 @@ private:
     uint32 ui32PortStatTable[MAX_NET_WORK_THREAD_COUNT];
     boost::shared_mutex lockStatCount;
 
-    std::map<uint64,CTcpListenNode*> mapTcpListen;
+    std::map<uint64, CTcpListenNode*> mapTcpListen;
 };
 
 } // namespace network
 
 #endif // __NETWORK_NETWORKSERVICE_H
-

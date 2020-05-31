@@ -52,7 +52,7 @@ inline void ResolveVersion(const int nVersion, int& nMajor, int& nMinor, int& nR
     nMinor = (nVersion / 100) % 100;
     nRevision = nVersion % 100;
 }
-
+   
 inline bool ResolveVersion(const std::string& strVersion, int& nMajor, int& nMinor, int& nRevision)
 {
     if (strVersion.find(".") != std::string::npos)

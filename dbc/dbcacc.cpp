@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "dbcacc.h"
+
 #include "dbcmysql.h"
 
 using namespace std;
@@ -13,10 +14,10 @@ namespace dbc
 //--------------------------------------------------------------------------------
 CDbcDbConnect* CDbcDbConnect::DbcCreateDbConnObj(CDbcConfig& tDbcCfg)
 {
-    switch ( tDbcCfg.iDbType )
+    switch (tDbcCfg.iDbType)
     {
     case DBC_DBTYPE_MYSQL:
-        return (CDbcDbConnect*) new CDbcMysqlDbConnect(tDbcCfg);
+        return (CDbcDbConnect*)new CDbcMysqlDbConnect(tDbcCfg);
     default:
         break;
     }

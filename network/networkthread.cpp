@@ -3,9 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "networkthread.h"
-#include "tcpconnect.h"
-#include "networkservice.h"
+
 #include "nbase/mthbase.h"
+#include "networkservice.h"
+#include "tcpconnect.h"
 
 using namespace std;
 using namespace nbase;
@@ -14,13 +15,12 @@ using boost::asio::ip::tcp;
 namespace network
 {
 
-
 //--------------------------------------------------------------------------------------------------------
-CNetWorkThread::CNetWorkThread(uint16 usThreadWorkIdIn, CNetWorkService& inNetWork) :
-        usThreadWorkId(usThreadWorkIdIn),tNetWorkService(inNetWork),workClientWork(ioServiceClientWork),
-        pThreadClientWork(NULL),pTimerClientWork(NULL)
+CNetWorkThread::CNetWorkThread(uint16 usThreadWorkIdIn, CNetWorkService& inNetWork)
+  : usThreadWorkId(usThreadWorkIdIn), tNetWorkService(inNetWork), workClientWork(ioServiceClientWork),
+    pThreadClientWork(NULL), pTimerClientWork(NULL)
 {
-    qRecvQueue.SetLowTrigger(20, boost::bind(&CNetWorkThread::PostRecvRequest,this,_1));
+    qRecvQueue.SetLowTrigger(20, boost::bind(&CNetWorkThread::PostRecvRequest, this, _1));
 }
 
 CNetWorkThread::~CNetWorkThread()
@@ -60,7 +60,6 @@ void CNetWorkThread::Stop()
     }
 }
 
-
 //-----------------------------------------------------------------------------------
 void CNetWorkThread::Work()
 {
@@ -81,7 +80,7 @@ void CNetWorkThread::Disconnect(CTcpConnect* pTcpConnIn)
 {
     if (pTcpConnIn)
     {
-        map<uint64,CTcpConnect*>::iterator it = mapTcpConn.find(pTcpConnIn->GetTcpConnNetId());
+        map<uint64, CTcpConnect*>::iterator it = mapTcpConn.find(pTcpConnIn->GetTcpConnNetId());
         if (it != mapTcpConn.end() && it->second)
         {
             mapTcpRemove.insert(make_pair(pTcpConnIn->GetTcpConnNetId(), pTcpConnIn));
@@ -114,10 +113,11 @@ bool CNetWorkThread::PostTcpConnectRequest(CMthNetEndpoint& epPeer, uint64& nNet
     if (!epPeer.GetEndpoint(epRemote))
     {
         blockhead::StdError(__PRETTY_FUNCTION__, "GetEndpoint fail.");
+        delete pTcpConnect;
         return false;
     }
     pTcpConnect->GetSocketId().async_connect(epRemote, boost::bind(&CNetWorkThread::HandleConnectCompleted, this,
-                                                pTcpConnect, boost::asio::placeholders::error));
+                                                                   pTcpConnect, boost::asio::placeholders::error));
     return true;
 }
 
@@ -136,13 +136,12 @@ void CNetWorkThread::PostRecvRequest(uint64 nNetId)
     ioServiceClientWork.post(boost::bind(&CNetWorkThread::HandleRecvRequest, this, nNetId));
 }
 
-
 //--------------------------------------------------------------------------------------------
 void CNetWorkThread::DoTcpRemoveTimer()
 {
     CTcpConnect* pTcpConn;
-    map<uint64,CTcpConnect*>::iterator it;
-    for (it = mapTcpRemove.begin(); it != mapTcpRemove.end(); )
+    map<uint64, CTcpConnect*>::iterator it;
+    for (it = mapTcpRemove.begin(); it != mapTcpRemove.end();)
     {
         pTcpConn = it->second;
         it++;
@@ -153,9 +152,8 @@ void CNetWorkThread::DoTcpRemoveTimer()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
-void CNetWorkThread::HandleTimer(const boost::system::error_code &err)
+void CNetWorkThread::HandleTimer(const boost::system::error_code& err)
 {
     if (!err)
     {
@@ -172,11 +170,16 @@ void CNetWorkThread::HandleTimer(const boost::system::error_code &err)
 void CNetWorkThread::HandleAccept(CTcpConnect* pTcpConnect)
 {
     bool fIfSuccess = false;
-    if (mapTcpConn.insert(make_pair(pTcpConnect->GetTcpConnNetId(), pTcpConnect)).second)
+    std::map<uint64, CTcpConnect*>::iterator it = mapTcpConn.insert(make_pair(pTcpConnect->GetTcpConnNetId(), pTcpConnect)).first;
+    if (it != mapTcpConn.end())
     {
         if (pTcpConnect->Accept())
         {
             fIfSuccess = true;
+        }
+        else
+        {
+            mapTcpConn.erase(it);
         }
     }
     if (!fIfSuccess)
@@ -193,31 +196,32 @@ void CNetWorkThread::HandleSendData(CMthNetPackData* pNvBuf)
         blockhead::StdError(__PRETTY_FUNCTION__, "HandleSendData pNvBuf == NULL.");
         return;
     }
-    map<uint64,CTcpConnect*>::iterator it = mapTcpConn.find(pNvBuf->ui64NetId);
+    map<uint64, CTcpConnect*>::iterator it = mapTcpConn.find(pNvBuf->ui64NetId);
     if (it != mapTcpConn.end() && it->second)
     {
         switch (pNvBuf->eMsgType)
         {
         case NET_MSG_TYPE_DATA:
             it->second->SetSendData(pNvBuf);
-            break;
+            return;
         case NET_MSG_TYPE_CLOSE:
             it->second->TcpRemove(NET_DIS_CAUSE_LOCAL_CLOSE);
             break;
         }
     }
+    delete pNvBuf;
 }
 
 void CNetWorkThread::HandleRecvRequest(uint64 nNetId)
 {
-    map<uint64,CTcpConnect*>::iterator it = mapTcpConn.find(nNetId);
+    map<uint64, CTcpConnect*>::iterator it = mapTcpConn.find(nNetId);
     if (it != mapTcpConn.end() && it->second)
     {
         it->second->PostRecvRequest();
     }
 }
 
-void CNetWorkThread::HandleConnectCompleted(CTcpConnect* pTcpConnect, const boost::system::error_code &ec)
+void CNetWorkThread::HandleConnectCompleted(CTcpConnect* pTcpConnect, const boost::system::error_code& ec)
 {
     if (pTcpConnect == NULL)
     {
@@ -228,11 +232,16 @@ void CNetWorkThread::HandleConnectCompleted(CTcpConnect* pTcpConnect, const boos
     bool fIfSuccess = false;
     if (!ec)
     {
-        if (mapTcpConn.insert(make_pair(pTcpConnect->GetTcpConnNetId(), pTcpConnect)).second)
+        std::map<uint64, CTcpConnect*>::iterator it = mapTcpConn.insert(make_pair(pTcpConnect->GetTcpConnNetId(), pTcpConnect)).first;
+        if (it != mapTcpConn.end())
         {
             if (pTcpConnect->ConnectCompleted())
             {
                 fIfSuccess = true;
+            }
+            else
+            {
+                mapTcpConn.erase(it);
             }
         }
     }
@@ -258,4 +267,4 @@ void CNetWorkThread::HandleConnectCompleted(CTcpConnect* pTcpConnect, const boos
     }
 }
 
-}  // namespace network
+} // namespace network
