@@ -14,7 +14,7 @@
 
 #define BB_VERSION_MAJOR 1
 #define BB_VERSION_MINOR 0
-#define BB_VERSION_REVISION 1
+#define BB_VERSION_REVISION 2
 
 std::string FormatVersion(int nVersion);
 
