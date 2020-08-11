@@ -87,6 +87,10 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
         ("debug", po::value<bool>(&fDebug)->default_value(false), "Run in debug mode")
         //daemon
         ("daemon", po::value<bool>(&fDaemon)->default_value(false), "Run server in background")
+        //logfilesize
+        ("logfilesize", po::value<int>(&nLogFileSize)->default_value(100), "Single log file size(M) (default: 100M)")
+        //loghistorysize
+        ("loghistorysize", po::value<int>(&nLogHistorySize)->default_value(2048), "Log history size(M) (default: 2048M)")
         //workdir
         ("workdir", po::value<string>(&sWorkDir)->default_value(pathDefault.c_str()), "Work dir")
         //workthreadcount
@@ -240,6 +244,8 @@ void CDnseedConfig::ListConfig()
     cout << "purge: " << (fPurge ? "true" : "false") << endl;
     cout << "debug: " << (fDebug ? "true" : "false") << endl;
     cout << "daemon: " << (fDaemon ? "true" : "false") << endl;
+    cout << "logfilesize: " << nLogFileSize << endl;
+    cout << "loghistorysize: " << nLogHistorySize << endl;
     cout << "workdir: " << sWorkDir << endl;
     cout << "workthreadcount: " << nWorkThreadCount << endl;
     cout << "allowalladdr: " << (fAllowAllAddr ? "true" : "false") << endl;

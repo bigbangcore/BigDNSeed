@@ -38,6 +38,8 @@ find_package(Boost 1.58.0 REQUIRED COMPONENTS
     regex
     unit_test_framework
     serialization
+    log
+    locale
 )
 find_package(OpenSSL 1.0.0 REQUIRED) 
 find_package(MySQL 5.7.20 REQUIRED)
@@ -82,6 +84,8 @@ target_link_libraries(bigdnseed
         Boost::date_time
         Boost::regex
         Boost::serialization
+		Boost::log
+		Boost::locale
         OpenSSL::SSL
         OpenSSL::Crypto
         )

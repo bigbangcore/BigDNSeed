@@ -72,6 +72,8 @@ public:
     bool fHelp;
     bool fDaemon;
     unsigned int nMagicNum;
+    int nLogFileSize;
+    int nLogHistorySize;
 
     string sWorkDir;
     bool fAllowAllAddr;

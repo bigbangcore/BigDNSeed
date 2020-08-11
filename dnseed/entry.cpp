@@ -121,6 +121,12 @@ bool CBbEntry::Initialize(int argc, char* argv[])
         return false;
     }
 
+    if (!InitLog(pathData, tDnseedCfg.fDebug, tDnseedCfg.fDaemon, tDnseedCfg.nLogFileSize, tDnseedCfg.nLogHistorySize))
+    {
+        cerr << "Failed to open log file : " << (pathData / "bigbang.log") << "\n";
+        return false;
+    }
+
     //----------------------------------------------------------------------
     pDisp = new CDispatcher();
     if (!pDisp->Initialize(&tDnseedCfg))
