@@ -107,7 +107,6 @@ bool CBbEntry::Initialize(int argc, char* argv[])
     // daemon
     if (tDnseedCfg.fDaemon)
     {
-        blockhead::fDaemonRun = true;
         if (!RunInBackground(pathData))
         {
             return false;
