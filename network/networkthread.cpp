@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace nbase;
+using namespace blockhead;
 using boost::asio::ip::tcp;
 
 namespace network
@@ -33,7 +34,7 @@ bool CNetWorkThread::Start()
     pThreadClientWork = new boost::thread(boost::bind(&CNetWorkThread::Work, this));
     if (pThreadClientWork == NULL)
     {
-        blockhead::StdError(__PRETTY_FUNCTION__, "Start thread fail.");
+        StdError("NetWorkThread", "Start thread fail.");
         return false;
     }
     return true;
@@ -72,7 +73,7 @@ void CNetWorkThread::Work()
     }
     catch (boost::thread_interrupted& er)
     {
-        blockhead::StdError(__PRETTY_FUNCTION__, "Work error.");
+        StdError("NetWorkThread", "Work error.");
     }
 }
 
@@ -103,7 +104,7 @@ bool CNetWorkThread::PostTcpConnectRequest(CMthNetEndpoint& epPeer, uint64& nNet
     CTcpConnect* pTcpConnect = new CTcpConnect(*this, epPeer);
     if (pTcpConnect == NULL)
     {
-        blockhead::StdError(__PRETTY_FUNCTION__, "new CTcpConnect fail.");
+        StdError("NetWorkThread", "PostTcpConnectRequest: new CTcpConnect fail.");
         return false;
     }
     pTcpConnect->nRefCount++;
@@ -112,7 +113,7 @@ bool CNetWorkThread::PostTcpConnectRequest(CMthNetEndpoint& epPeer, uint64& nNet
     tcp::endpoint epRemote;
     if (!epPeer.GetEndpoint(epRemote))
     {
-        blockhead::StdError(__PRETTY_FUNCTION__, "GetEndpoint fail.");
+        StdError("NetWorkThread", "PostTcpConnectRequest: GetEndpoint fail.");
         delete pTcpConnect;
         return false;
     }
@@ -193,7 +194,7 @@ void CNetWorkThread::HandleSendData(CMthNetPackData* pNvBuf)
 {
     if (pNvBuf == NULL)
     {
-        blockhead::StdError(__PRETTY_FUNCTION__, "HandleSendData pNvBuf == NULL.");
+        StdError("NetWorkThread", "HandleSendData: pNvBuf == NULL.");
         return;
     }
     map<uint64, CTcpConnect*>::iterator it = mapTcpConn.find(pNvBuf->ui64NetId);
@@ -225,7 +226,7 @@ void CNetWorkThread::HandleConnectCompleted(CTcpConnect* pTcpConnect, const boos
 {
     if (pTcpConnect == NULL)
     {
-        blockhead::StdError(__PRETTY_FUNCTION__, "pTcpConnect error");
+        StdError("NetWorkThread", "HandleConnectCompleted: pTcpConnect error");
         return;
     }
 
@@ -252,12 +253,12 @@ void CNetWorkThread::HandleConnectCompleted(CTcpConnect* pTcpConnect, const boos
             if (ec)
             {
                 string sInfo = string("Connect fail, Peer: ") + pTcpConnect->epPeer.ToString() + string(", Cause: ") + ec.message();
-                blockhead::StdDebug("CFLOW", sInfo.c_str());
+                StdDebug("CFLOW", sInfo.c_str());
             }
             else
             {
                 string sInfo = string("Connect fail, Peer: ") + pTcpConnect->epPeer.ToString();
-                blockhead::StdDebug("CFLOW", sInfo.c_str());
+                StdDebug("CFLOW", sInfo.c_str());
             }
         }
 

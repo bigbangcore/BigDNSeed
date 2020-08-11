@@ -11,6 +11,7 @@
 
 using namespace std;
 using namespace nbase;
+using namespace blockhead;
 
 namespace network
 {
@@ -43,6 +44,7 @@ CTcpConnect::~CTcpConnect()
         }
         catch (exception& e)
         {
+            StdError("TcpConnect", "Close socket error: %s", e.what());
         }
         fIfOpenSocket = false;
     }
@@ -74,7 +76,7 @@ bool CTcpConnect::Accept()
         }
         catch (exception& e)
         {
-            //StdError(__PRETTY_FUNCTION__, e.what());
+            StdError("TcpConnect", "Accept: remote_endpoint error: %s", e.what());
             return false;
         }
         try
@@ -83,12 +85,14 @@ bool CTcpConnect::Accept()
         }
         catch (exception& e)
         {
+            StdError("TcpConnect", "Accept: local_endpoint error: %s", e.what());
             return false;
         }
 
         CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_SETUP, NET_DIS_CAUSE_UNKNOWN, epPeer, epLinkListen);
         if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
         {
+            StdError("TcpConnect", "Accept: SetData fail");
             delete pMthBuf;
             return false;
         }
@@ -108,12 +112,13 @@ void CTcpConnect::TcpRemove(E_DISCONNECT_CAUSE eCloseCause)
         }
         catch (exception& e)
         {
-            //return;
+            StdError("TcpConnect", "TcpRemove: Close socket error: %s", e.what());
         }
         tNetWorkThread.Disconnect(this);
         CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_CLOSE, eCloseCause, epPeer, epLinkListen);
         if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
         {
+            StdError("TcpConnect", "TcpRemove: SetData fail");
             delete pMthBuf;
         }
         fIfOpenSocket = false;
@@ -179,6 +184,7 @@ bool CTcpConnect::ConnectCompleted()
 {
     if (!socketClient.is_open())
     {
+        StdError("TcpConnect", "ConnectCompleted: socket not open");
         return false;
     }
     try
@@ -187,11 +193,13 @@ bool CTcpConnect::ConnectCompleted()
     }
     catch (exception& e)
     {
+        StdError("TcpConnect", "ConnectCompleted: local_endpoint error: %s", e.what());
         return false;
     }
     CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_COMPLETE_NOTIFY, NET_DIS_CAUSE_CONNECT_SUCCESS, epPeer, epLocal);
     if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
     {
+        StdError("TcpConnect", "ConnectCompleted: SetData fail");
         delete pMthBuf;
         return false;
     }
@@ -204,6 +212,7 @@ void CTcpConnect::ConnectFail()
     CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_COMPLETE_NOTIFY, NET_DIS_CAUSE_CONNECT_FAIL, epPeer, epLocal);
     if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
     {
+        StdError("TcpConnect", "ConnectFail: SetData fail");
         delete pMthBuf;
     }
 }
@@ -232,6 +241,7 @@ void CTcpConnect::HandleRead(const boost::system::error_code& ec, std::size_t by
         CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_DATA, NET_DIS_CAUSE_UNKNOWN, epPeer, epLinkListen, buffer_read, bytes_transferred);
         if (!tNetWorkThread.qRecvQueue.PushPacket(pMthBuf, fLimitRecv, 4000))
         {
+            StdError("TcpConnect", "HandleRead: PushPacket fail");
             delete pMthBuf;
             TcpRemove(NET_DIS_CAUSE_LOCAL_CLOSE);
             return;
