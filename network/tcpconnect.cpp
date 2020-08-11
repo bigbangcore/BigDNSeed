@@ -37,7 +37,13 @@ CTcpConnect::~CTcpConnect()
 {
     if (fIfOpenSocket)
     {
-        socketClient.close();
+        try
+        {
+            socketClient.close();
+        }
+        catch (exception& e)
+        {
+        }
         fIfOpenSocket = false;
     }
 
@@ -62,8 +68,23 @@ bool CTcpConnect::Accept()
 {
     if (fIfOpenSocket && socketClient.is_open())
     {
-        epPeer.SetEndpoint(socketClient.remote_endpoint());
-        epLocal.SetEndpoint(socketClient.local_endpoint());
+        try
+        {
+            epPeer.SetEndpoint(socketClient.remote_endpoint());
+        }
+        catch (exception& e)
+        {
+            //StdError(__PRETTY_FUNCTION__, e.what());
+            return false;
+        }
+        try
+        {
+            epLocal.SetEndpoint(socketClient.local_endpoint());
+        }
+        catch (exception& e)
+        {
+            return false;
+        }
 
         CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_SETUP, NET_DIS_CAUSE_UNKNOWN, epPeer, epLinkListen);
         if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
@@ -81,7 +102,14 @@ void CTcpConnect::TcpRemove(E_DISCONNECT_CAUSE eCloseCause)
 {
     if (fIfOpenSocket)
     {
-        socketClient.close();
+        try
+        {
+            socketClient.close();
+        }
+        catch (exception& e)
+        {
+            //return;
+        }
         tNetWorkThread.Disconnect(this);
         CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_CLOSE, eCloseCause, epPeer, epLinkListen);
         if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
@@ -153,7 +181,14 @@ bool CTcpConnect::ConnectCompleted()
     {
         return false;
     }
-    epLocal.SetEndpoint(socketClient.local_endpoint());
+    try
+    {
+        epLocal.SetEndpoint(socketClient.local_endpoint());
+    }
+    catch (exception& e)
+    {
+        return false;
+    }
     CMthNetPackData* pMthBuf = new CMthNetPackData(ui64TcpConnNetId, NET_MSG_TYPE_COMPLETE_NOTIFY, NET_DIS_CAUSE_CONNECT_SUCCESS, epPeer, epLocal);
     if (!tNetWorkThread.qRecvQueue.SetData(pMthBuf, 4000))
     {
