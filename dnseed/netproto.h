@@ -22,8 +22,12 @@ using namespace nbase;
 
 //---------------------------------------------------------------------------------
 // basic config
-#define MAINNET_MAGICNUM 0x3b54beae
-#define TESTNET_MAGICNUM 0xa006c295
+//BBC
+//#define MAINNET_MAGICNUM 0x3b54beae
+//#define TESTNET_MAGICNUM 0xa006c295
+//MKF
+#define MAINNET_MAGICNUM 0x3b54beaf
+#define TESTNET_MAGICNUM 0xa006c294
 
 #define NMS_MESSAGE_HEADER_SIZE 16
 #define NMS_MESSAGE_PAYLOAD_MAX_SIZE 0x400000

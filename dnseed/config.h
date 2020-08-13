@@ -20,7 +20,8 @@ using namespace std;
 using namespace dbc;
 using namespace network;
 
-#define NMS_CFG_LISTEN_PORT 9906
+//#define NMS_CFG_LISTEN_PORT 9906
+#define NMS_CFG_LISTEN_PORT 8806 //MKF
 #define NMS_ATP_MAX_ADDR_SCORE 100
 #define NMS_ATP_MIN_ADDR_SCORE -200
 #define NMS_ATP_GOOD_ADDR_SCORE 10
