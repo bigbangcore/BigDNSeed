@@ -128,6 +128,18 @@ bool CBbEntry::Initialize(int argc, char* argv[])
     }
 
     //----------------------------------------------------------------------
+    if (tDnseedCfg.strGenesisBlockHash.empty())
+    {
+        cout << "genesisblock is empty!" << endl;
+        return false;
+    }
+    if (tDnseedCfg.hashGenesisBlock.SetHex(tDnseedCfg.strGenesisBlockHash) != tDnseedCfg.strGenesisBlockHash.size())
+    {
+        cout << "genesisblock is error!" << endl;
+        return false;
+    }
+
+    //----------------------------------------------------------------------
     pDisp = new CDispatcher();
     if (!pDisp->Initialize(&tDnseedCfg))
     {

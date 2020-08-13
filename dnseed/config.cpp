@@ -63,7 +63,6 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
     pathData = pathRoot;
 
     po::variables_map vm;
-    string strGenesisBlockHash;
     string strDNSeedListenAddrV4;
     string strDNSeedListenAddrV6;
     unsigned short usDNSeedListenPort;
@@ -96,7 +95,7 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
         //workthreadcount
         ("workthreadcount", po::value<unsigned int>(&nWorkThreadCount)->default_value(0), "Work thread number(0 is the number of CPUs)")
         //genesisblock
-        ("genesisblock", po::value<string>(&strGenesisBlockHash)->default_value(""), "Genesis block hash")
+        ("genesisblock", po::value<string>(&strGenesisBlockHash)->default_value("00000000b0a9be545f022309e148894d1e1c853ccac3ef04cb6f5e5c70f41a70"), "Genesis block hash")
         //allowalladdr
         ("allowalladdr", po::value<bool>(&fAllowAllAddr)->default_value(false), "Allow all address")
         //dbhost
@@ -178,17 +177,6 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
     }
 
     //----------------------------------------------------------------------------------------------------------
-    if (strGenesisBlockHash.empty())
-    {
-        cout << "genesisblock is empty!" << endl;
-        return false;
-    }
-    if (hashGenesisBlock.SetHex(strGenesisBlockHash) != strGenesisBlockHash.size())
-    {
-        cout << "genesisblock is error!" << endl;
-        return false;
-    }
-
     tNetCfg.tListenEpIPV4.SetAddrPort(strDNSeedListenAddrV4, usDNSeedListenPort);
     tNetCfg.tListenEpIPV6.SetAddrPort(strDNSeedListenAddrV6, usDNSeedListenPort);
     nMagicNum = (fTestNet ? TESTNET_MAGICNUM : MAINNET_MAGICNUM);
@@ -249,7 +237,7 @@ void CDnseedConfig::ListConfig()
     cout << "workdir: " << sWorkDir << endl;
     cout << "workthreadcount: " << nWorkThreadCount << endl;
     cout << "allowalladdr: " << (fAllowAllAddr ? "true" : "false") << endl;
-    cout << "genesisblock: " << hashGenesisBlock.GetHex() << endl;
+    cout << "genesisblock: " << strGenesisBlockHash << endl;
     cout << "dbhost: " << tDbCfg.sDbIp << endl;
     cout << "dbport: " << tDbCfg.usDbPort << endl;
     cout << "dbname: " << tDbCfg.sDbName << endl;
