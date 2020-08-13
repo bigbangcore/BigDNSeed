@@ -44,7 +44,7 @@ CDnseedConfig::CDnseedConfig()
     tDbCfg.iDbType = DBC_DBTYPE_MYSQL;
     tDbCfg.sDbIp = "localhost";
     tDbCfg.usDbPort = 3306;
-    tDbCfg.sDbName = "bigdnseed";
+    tDbCfg.sDbName = "bigdnseedmkf";
     tDbCfg.sDbUser = "bigdnseed";
     tDbCfg.sDbPwd = "bigdnseed";
 
@@ -104,7 +104,7 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
         //dbport
         ("dbport", po::value<unsigned short>(&tDbCfg.usDbPort)->default_value(3306), "Set mysql port (default: 3306)")
         //dbname
-        ("dbname", po::value<string>(&tDbCfg.sDbName)->default_value("bigdnseed"), "Set mysql database name (default: bigdnseed)")
+        ("dbname", po::value<string>(&tDbCfg.sDbName)->default_value("bigdnseedmkf"), "Set mysql database name (default: bigdnseedmkf)")
         //dbuser
         ("dbuser", po::value<string>(&tDbCfg.sDbUser)->default_value("bigdnseed"), "Set mysql user's name (default: bigdnseed)")
         //dbpass

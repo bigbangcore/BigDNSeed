@@ -21,8 +21,8 @@ bigdnseed -help<br>
 # Mysql setup
 #Login mysql as root,run sql command as follows:<br>
 <br>
-create database bigdnseed;<br>
-grant all privileges on bigdnseed.* to bigdnseed@localhost identified by 'bigdnseed';<br>
+create database bigdnseedmkf;<br>
+grant all privileges on bigdnseedmkf.* to bigdnseed@localhost identified by 'bigdnseed';<br>
 flush privileges;<br>
 <br>
 #then,quit from mysql prompt:<br>
