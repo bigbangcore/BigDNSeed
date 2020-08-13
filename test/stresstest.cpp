@@ -54,7 +54,33 @@ bool CStressTestConfig::ReadConfig(int argc, char* argv[],
                                 | po::command_line_style::long_allow_adjacent
                                 | po::command_line_style::allow_long_disguise;
 
-    defaultDesc.add_options()("help", po::value<bool>(&fHelp)->default_value(false), "Get more information")("testnet", po::value<bool>(&fTestNet)->default_value(false), "Use the test network")("debug", po::value<bool>(&fDebug)->default_value(false), "Run in debug mode")("workdir", po::value<string>(&sWorkDir)->default_value(pathDefault.c_str()), "work dir")("trustport", po::value<unsigned short>(&nTrustPort)->default_value(0), "begin port")("localip", po::value<string>(&sLocalIpaddr)->default_value("127.0.0.1"), "local ip")("beginport", po::value<unsigned short>(&nListenBeginPort)->default_value(10000), "begin port")("portcount", po::value<unsigned short>(&nListenPortCount)->default_value(1), "port count")("perportcount", po::value<unsigned int>(&nPerPortCount)->default_value(10), "per port count")("connectip", po::value<string>(&sConnectIpaddr)->default_value("127.0.0.1"), "connect ip")("connectport", po::value<unsigned short>(&nConnectPort)->default_value(6819), "connect port")("perconnectcount", po::value<unsigned int>(&nPerConnectCount)->default_value(1), "per connect count")("maxconnectcount", po::value<unsigned int>(&nMaxConnectCount)->default_value(1), "max connect count");
+    defaultDesc.add_options()
+        //help
+        ("help", po::value<bool>(&fHelp)->default_value(false), "Get more information")
+        //testnet
+        ("testnet", po::value<bool>(&fTestNet)->default_value(false), "Use the test network")
+        //debug
+        ("debug", po::value<bool>(&fDebug)->default_value(false), "Run in debug mode")
+        //workdir
+        ("workdir", po::value<string>(&sWorkDir)->default_value(pathDefault.c_str()), "work dir")
+        //trustport
+        ("trustport", po::value<unsigned short>(&nTrustPort)->default_value(0), "begin port")
+        //localip
+        ("localip", po::value<string>(&sLocalIpaddr)->default_value("127.0.0.1"), "local ip")
+        //beginport
+        ("beginport", po::value<unsigned short>(&nListenBeginPort)->default_value(10000), "begin port")
+        //portcount
+        ("portcount", po::value<unsigned short>(&nListenPortCount)->default_value(1), "port count")
+        //perportcount
+        ("perportcount", po::value<unsigned int>(&nPerPortCount)->default_value(10), "per port count")
+        //connectip
+        ("connectip", po::value<string>(&sConnectIpaddr)->default_value("127.0.0.1"), "connect ip")
+        //connectport
+        ("connectport", po::value<unsigned short>(&nConnectPort)->default_value(6819), "connect port")
+        //perconnectcount
+        ("perconnectcount", po::value<unsigned int>(&nPerConnectCount)->default_value(1), "per connect count")
+        //maxconnectcount
+        ("maxconnectcount", po::value<unsigned int>(&nMaxConnectCount)->default_value(1), "max connect count");
 
     //----------------------------------------------------------------------------------------------------------
     po::store(po::command_line_parser(argc, argv).options(defaultDesc).style(defaultCmdStyle).extra_parser(CStressTestConfig::ExtraParser).run(), vm);
