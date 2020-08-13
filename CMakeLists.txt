@@ -1,12 +1,12 @@
 #------------------------------------------------------------------------------
-# CMake file for BigDNSeed
+# CMake file for MkfDNSeed
 #
 # Copyright (c) 2019 The BigDNSeed developers
 # Distributed under the MIT/X11 software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #------------------------------------------------------------------------------
 
-project(bigdnseed LANGUAGES CXX)
+project(mkfdnseed LANGUAGES CXX)
 
 cmake_minimum_required(VERSION 3.5.1)
 
@@ -65,9 +65,9 @@ set(sources
         main.cpp
         )
 
-add_executable(bigdnseed ${sources})
+add_executable(mkfdnseed ${sources})
 
-target_link_libraries(bigdnseed
+target_link_libraries(mkfdnseed
         blockhead
         network
         nbase
@@ -76,7 +76,7 @@ target_link_libraries(bigdnseed
         crypto
         )
 
-target_link_libraries(bigdnseed
+target_link_libraries(mkfdnseed
         Boost::system
         Boost::filesystem
         Boost::program_options
@@ -90,5 +90,5 @@ target_link_libraries(bigdnseed
         OpenSSL::Crypto
         )
 
-INSTALL(TARGETS bigdnseed RUNTIME DESTINATION bin)
+INSTALL(TARGETS mkfdnseed RUNTIME DESTINATION bin)
 

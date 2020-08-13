@@ -1,17 +1,18 @@
 // stresstest.cpp
 
 #include "stresstest.h"
-#include "dnseed/version.h"
+
 #include <boost/algorithm/string/trim.hpp>
+
+#include "dnseed/version.h"
 
 using namespace dnseed;
 
-namespace po = boost::program_options; 
-namespace fs = boost::filesystem; 
+namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 namespace stresstest
 {
-
 
 //---------------------------------------------------------------------------
 CStressTestConfig::CStressTestConfig()
@@ -39,40 +40,24 @@ CStressTestConfig::CStressTestConfig()
 
 CStressTestConfig::~CStressTestConfig()
 {
-
 }
 
-bool CStressTestConfig::ReadConfig(int argc, char *argv[], 
-    const boost::filesystem::path& pathDefault, const std::string& strConfile)
+bool CStressTestConfig::ReadConfig(int argc, char* argv[],
+                                   const boost::filesystem::path& pathDefault, const std::string& strConfile)
 {
     pathRoot = pathDefault;
     pathData = pathRoot;
 
     po::variables_map vm;
 
-    const int defaultCmdStyle = po::command_line_style::allow_long 
-                         | po::command_line_style::long_allow_adjacent
-                         | po::command_line_style::allow_long_disguise;
+    const int defaultCmdStyle = po::command_line_style::allow_long
+                                | po::command_line_style::long_allow_adjacent
+                                | po::command_line_style::allow_long_disguise;
 
-    defaultDesc.add_options()
-        ("help", po::value<bool>(&fHelp)->default_value(false), "Get more information")
-        ("testnet", po::value<bool>(&fTestNet)->default_value(false), "Use the test network")
-        ("debug", po::value<bool>(&fDebug)->default_value(false), "Run in debug mode")
-        ("workdir", po::value<string>(&sWorkDir)->default_value(pathDefault.c_str()), "work dir")
-        ("trustport", po::value<unsigned short>(&nTrustPort)->default_value(0), "begin port")
-        ("localip", po::value<string>(&sLocalIpaddr)->default_value("127.0.0.1"), "local ip")
-        ("beginport", po::value<unsigned short>(&nListenBeginPort)->default_value(10000), "begin port")
-        ("portcount", po::value<unsigned short>(&nListenPortCount)->default_value(1), "port count")
-        ("perportcount", po::value<unsigned int>(&nPerPortCount)->default_value(10), "per port count")
-        ("connectip", po::value<string>(&sConnectIpaddr)->default_value("127.0.0.1"), "connect ip")
-        ("connectport", po::value<unsigned short>(&nConnectPort)->default_value(6819), "connect port")
-        ("perconnectcount", po::value<unsigned int>(&nPerConnectCount)->default_value(1), "per connect count")
-        ("maxconnectcount", po::value<unsigned int>(&nMaxConnectCount)->default_value(1), "max connect count")
-        ;
+    defaultDesc.add_options()("help", po::value<bool>(&fHelp)->default_value(false), "Get more information")("testnet", po::value<bool>(&fTestNet)->default_value(false), "Use the test network")("debug", po::value<bool>(&fDebug)->default_value(false), "Run in debug mode")("workdir", po::value<string>(&sWorkDir)->default_value(pathDefault.c_str()), "work dir")("trustport", po::value<unsigned short>(&nTrustPort)->default_value(0), "begin port")("localip", po::value<string>(&sLocalIpaddr)->default_value("127.0.0.1"), "local ip")("beginport", po::value<unsigned short>(&nListenBeginPort)->default_value(10000), "begin port")("portcount", po::value<unsigned short>(&nListenPortCount)->default_value(1), "port count")("perportcount", po::value<unsigned int>(&nPerPortCount)->default_value(10), "per port count")("connectip", po::value<string>(&sConnectIpaddr)->default_value("127.0.0.1"), "connect ip")("connectport", po::value<unsigned short>(&nConnectPort)->default_value(6819), "connect port")("perconnectcount", po::value<unsigned int>(&nPerConnectCount)->default_value(1), "per connect count")("maxconnectcount", po::value<unsigned int>(&nMaxConnectCount)->default_value(1), "max connect count");
 
     //----------------------------------------------------------------------------------------------------------
-    po::store(po::command_line_parser(argc, argv).options(defaultDesc).style(defaultCmdStyle)
-        .extra_parser(CStressTestConfig::ExtraParser).run(),vm);
+    po::store(po::command_line_parser(argc, argv).options(defaultDesc).style(defaultCmdStyle).extra_parser(CStressTestConfig::ExtraParser).run(), vm);
     po::notify(vm);
 
     //printf("pathDefault: %s, sWorkDir: %s.\n", pathDefault.c_str(), sWorkDir.c_str());
@@ -88,10 +73,9 @@ bool CStressTestConfig::ReadConfig(int argc, char *argv[],
     }
 
     vector<string> confToken;
-    if (TokenizeConfile(pathConfile.string().c_str(),confToken))
+    if (TokenizeConfile(pathConfile.string().c_str(), confToken))
     {
-        po::store(po::command_line_parser(confToken).options(defaultDesc).style(defaultCmdStyle)
-            .extra_parser(CStressTestConfig::ExtraParser).run(),vm);
+        po::store(po::command_line_parser(confToken).options(defaultDesc).style(defaultCmdStyle).extra_parser(CStressTestConfig::ExtraParser).run(), vm);
         po::notify(vm);
     }
 
@@ -124,9 +108,9 @@ bool CStressTestConfig::ReadConfig(int argc, char *argv[],
 
 void CStressTestConfig::ListConfig()
 {
-    cout << "help: " << (fHelp?"true":"false") << endl;
-    cout << "testnet: " << (fTestNet?"true":"false") << endl;
-    cout << "debug: " << (fDebug?"true":"false") << endl;
+    cout << "help: " << (fHelp ? "true" : "false") << endl;
+    cout << "testnet: " << (fTestNet ? "true" : "false") << endl;
+    cout << "debug: " << (fDebug ? "true" : "false") << endl;
     cout << "workdir: " << sWorkDir << endl;
     cout << "trustport: " << nTrustPort << endl;
     cout << "localip: " << sLocalIpaddr << endl;
@@ -144,7 +128,7 @@ void CStressTestConfig::Help()
     cout << defaultDesc << endl;
 }
 
-bool CStressTestConfig::TokenizeConfile(const char *pzConfile,vector<string>& tokens)
+bool CStressTestConfig::TokenizeConfile(const char* pzConfile, vector<string>& tokens)
 {
     ifstream ifs(pzConfile);
     if (!ifs)
@@ -152,9 +136,9 @@ bool CStressTestConfig::TokenizeConfile(const char *pzConfile,vector<string>& to
         return false;
     }
     string line;
-    while(!getline(ifs,line).eof() || !line.empty())
+    while (!getline(ifs, line).eof() || !line.empty())
     {
-        string s = line.substr(0,line.find('#'));
+        string s = line.substr(0, line.find('#'));
         boost::trim(s);
         if (!s.empty())
         {
@@ -183,7 +167,7 @@ void CStressTestConfig::AddToken(string& sIn, vector<string>& tokens)
     {
         return;
     }
-    sTempValue = sIn.substr(pos1+1, -1);
+    sTempValue = sIn.substr(pos1 + 1, -1);
     boost::trim(sTempValue);
     if (sTempValue.empty())
     {
@@ -202,7 +186,7 @@ void CStressTestConfig::AddToken(string& sIn, vector<string>& tokens)
         boost::trim(sTempStr);
         tokens.push_back(string("-") + sFieldName + string("=") + sTempStr);
 
-        sTempStr = sTempValue.substr(pos1+1, -1);
+        sTempStr = sTempValue.substr(pos1 + 1, -1);
         boost::trim(sTempStr);
         if (sTempStr.empty())
         {
@@ -233,36 +217,35 @@ void CStressTestConfig::AddToken(string& sIn, vector<string>& tokens)
     }
 }
 
-pair<string,string> CStressTestConfig::ExtraParser(const string& s)
+pair<string, string> CStressTestConfig::ExtraParser(const string& s)
 {
     if (s[0] == '-' && !isdigit(s[1]))
     {
-        bool fRev = (s.substr(1,2) == "no");
+        bool fRev = (s.substr(1, 2) == "no");
         size_t eq = s.find('=');
         if (eq == string::npos)
         {
             if (fRev)
             {
-                return make_pair(s.substr(3),string("0"));
+                return make_pair(s.substr(3), string("0"));
             }
             else
             {
-                return make_pair(s.substr(1),string("1"));
+                return make_pair(s.substr(1), string("1"));
             }
         }
         else if (fRev)
         {
-            int v = atoi(s.substr(eq+1).c_str());
-            return make_pair(s.substr(3,eq-3),string(v != 0 ? "0" : "1"));
+            int v = atoi(s.substr(eq + 1).c_str());
+            return make_pair(s.substr(3, eq - 3), string(v != 0 ? "0" : "1"));
         }
     }
     return make_pair(string(), string());
 }
 
-
 //---------------------------------------------------------------------------
-CStressTestWorkThreadPool::CStressTestWorkThreadPool(CStressTestConfig *pCfg, CNetWorkService *nws,CStressTestBbAddrPool *pBbAddrPoolIn) : 
-    pTestCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn)
+CStressTestWorkThreadPool::CStressTestWorkThreadPool(CStressTestConfig* pCfg, CNetWorkService* nws, CStressTestBbAddrPool* pBbAddrPoolIn)
+  : pTestCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn)
 {
     nWorkThreadCount = pNetWorkService->GetWorkThreadCount();
     if (nWorkThreadCount > MAX_NET_WORK_THREAD_COUNT)
@@ -270,7 +253,7 @@ CStressTestWorkThreadPool::CStressTestWorkThreadPool(CStressTestConfig *pCfg, CN
         nWorkThreadCount = MAX_NET_WORK_THREAD_COUNT;
     }
 
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         pWorkThreadTable[i] = new CStressTestMsgWorkThread(nWorkThreadCount, i, pCfg, nws, pBbAddrPoolIn);
     }
@@ -278,7 +261,7 @@ CStressTestWorkThreadPool::CStressTestWorkThreadPool(CStressTestConfig *pCfg, CN
 
 CStressTestWorkThreadPool::~CStressTestWorkThreadPool()
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         delete pWorkThreadTable[i];
         pWorkThreadTable[i] = NULL;
@@ -287,7 +270,7 @@ CStressTestWorkThreadPool::~CStressTestWorkThreadPool()
 
 bool CStressTestWorkThreadPool::StartAll()
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         if (pWorkThreadTable[i] == NULL || !pWorkThreadTable[i]->Start())
         {
@@ -300,7 +283,7 @@ bool CStressTestWorkThreadPool::StartAll()
 
 void CStressTestWorkThreadPool::StopAll()
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         if (pWorkThreadTable[i])
         {
@@ -311,7 +294,7 @@ void CStressTestWorkThreadPool::StopAll()
 
 bool CStressTestWorkThreadPool::StatData(CStressTestStat& tStat)
 {
-    for (uint32 i=0; i<nWorkThreadCount; i++)
+    for (uint32 i = 0; i < nWorkThreadCount; i++)
     {
         if (pWorkThreadTable[i])
         {
@@ -323,11 +306,10 @@ bool CStressTestWorkThreadPool::StatData(CStressTestStat& tStat)
     return true;
 }
 
-
 //-----------------------------------------------------------------------------------------------
-CStressTestMsgWorkThread::CStressTestMsgWorkThread(uint32 nThreadCount, uint32 nThreadIndex, CStressTestConfig *pCfg, CNetWorkService *nws, CStressTestBbAddrPool *pBbAddrPoolIn) : 
-    nWorkThreadCount(nThreadCount), nWorkThreadIndex(nThreadIndex), pTestCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn), 
-    pThreadMsgWork(NULL),pNetDataQueue(NULL),fRunFlag(false),tmPrevTimerDoTime(0)
+CStressTestMsgWorkThread::CStressTestMsgWorkThread(uint32 nThreadCount, uint32 nThreadIndex, CStressTestConfig* pCfg, CNetWorkService* nws, CStressTestBbAddrPool* pBbAddrPoolIn)
+  : nWorkThreadCount(nThreadCount), nWorkThreadIndex(nThreadIndex), pTestCfg(pCfg), pNetWorkService(nws), pBbAddrPool(pBbAddrPoolIn),
+    pThreadMsgWork(NULL), pNetDataQueue(NULL), fRunFlag(false), tmPrevTimerDoTime(0)
 {
     pNetDataQueue = &(nws->GetWorkRecvQueue(nThreadIndex));
 
@@ -391,7 +373,6 @@ bool CStressTestMsgWorkThread::GetStatData(CStressTestStat& tStat)
     return true;
 }
 
-
 //-------------------------------------------------------------------------------
 void CStressTestMsgWorkThread::Work()
 {
@@ -401,7 +382,7 @@ void CStressTestMsgWorkThread::Work()
     {
         Timer();
 
-        CMthNetPackData *pPackData = NULL;
+        CMthNetPackData* pPackData = NULL;
         if (!pNetDataQueue->GetData(pPackData, 100) || pPackData == NULL)
         {
             continue;
@@ -422,9 +403,8 @@ void CStressTestMsgWorkThread::Timer()
     StressTestDoCallConnect();
 }
 
-
 //-------------------------------------------------------------------------------
-void CStressTestMsgWorkThread::StressTestDoPacket(CMthNetPackData *pPackData)
+void CStressTestMsgWorkThread::StressTestDoPacket(CMthNetPackData* pPackData)
 {
     switch (pPackData->eMsgType)
     {
@@ -441,7 +421,7 @@ void CStressTestMsgWorkThread::StressTestDoPacket(CMthNetPackData *pPackData)
             pTestCfg->fRecvTrustConnect = true;
         }
 
-        if (StressTestAddNetPeer(true,pPackData->ui64NetId,pPackData->epPeerAddr,pPackData->epLocalAddr) == NULL)
+        if (StressTestAddNetPeer(true, pPackData->ui64NetId, pPackData->epPeerAddr, pPackData->epLocalAddr) == NULL)
         {
             blockhead::StdError(__PRETTY_FUNCTION__, "StressTestDoPacket NET_MSG_TYPE_SETUP StressTestAddNetPeer error.");
             pNetWorkService->RemoveNetPort(pPackData->ui64NetId);
@@ -451,7 +431,7 @@ void CStressTestMsgWorkThread::StressTestDoPacket(CMthNetPackData *pPackData)
     }
     case NET_MSG_TYPE_DATA:
     {
-        CStressTestNetPeer *pNetPeer = StressTestGetNetPeer(pPackData->ui64NetId);
+        CStressTestNetPeer* pNetPeer = StressTestGetNetPeer(pPackData->ui64NetId);
         if (pNetPeer)
         {
             if (!pNetPeer->StressTestDoRecvPacket(pPackData))
@@ -516,14 +496,14 @@ void CStressTestMsgWorkThread::StressTestDoPacket(CMthNetPackData *pPackData)
     }
 }
 
-bool CStressTestMsgWorkThread::StressTestSendDataPacket(uint64 nNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, char *pBuf, uint32 nLen)
+bool CStressTestMsgWorkThread::StressTestSendDataPacket(uint64 nNetId, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn, char* pBuf, uint32 nLen)
 {
     if (nNetId == 0 || pBuf == NULL || nLen == 0)
     {
         blockhead::StdError(__PRETTY_FUNCTION__, "Param error.");
         return false;
     }
-    CMthNetPackData *pPackData = new CMthNetPackData(nNetId, NET_MSG_TYPE_DATA, NET_DIS_CAUSE_UNKNOWN, tPeerEpIn, tLocalEpIn, pBuf, nLen);
+    CMthNetPackData* pPackData = new CMthNetPackData(nNetId, NET_MSG_TYPE_DATA, NET_DIS_CAUSE_UNKNOWN, tPeerEpIn, tLocalEpIn, pBuf, nLen);
     return pNetWorkService->ReqSendData(pPackData);
 }
 
@@ -531,9 +511,9 @@ CStressTestNetPeer* CStressTestMsgWorkThread::StressTestAddNetPeer(bool fInBound
 {
     if (StressTestGetNetPeer(nPeerNetId) == NULL)
     {
-        CStressTestNetPeer *pNetPeer = new CStressTestNetPeer(this, pBbAddrPool, pTestCfg->nMagicNum, 
-            fInBoundIn, nPeerNetId, tPeerEpIn, tLocalEpIn);
-        if (mapPeer.insert(make_pair(nPeerNetId,pNetPeer)).second)
+        CStressTestNetPeer* pNetPeer = new CStressTestNetPeer(this, pBbAddrPool, pTestCfg->nMagicNum,
+                                                              fInBoundIn, nPeerNetId, tPeerEpIn, tLocalEpIn);
+        if (mapPeer.insert(make_pair(nPeerNetId, pNetPeer)).second)
         {
             boost::unique_lock<boost::shared_mutex> lock(lockStat);
             if (fInBoundIn)
@@ -564,7 +544,7 @@ void CStressTestMsgWorkThread::StressTestDelNetPeer(uint64 nPeerNetId)
     it = mapPeer.find(nPeerNetId);
     if (it != mapPeer.end())
     {
-        CStressTestNetPeer *pPeer = it->second;
+        CStressTestNetPeer* pPeer = it->second;
         mapPeer.erase(it);
         if (pPeer)
         {
@@ -602,7 +582,7 @@ void CStressTestMsgWorkThread::StressTestActiveClosePeer(uint64 nPeerNetId)
     StressTestDelNetPeer(nPeerNetId);
 }
 
-bool CStressTestMsgWorkThread::StressTestHandlePeerHandshaked(CStressTestNetPeer *pPeer)
+bool CStressTestMsgWorkThread::StressTestHandlePeerHandshaked(CStressTestNetPeer* pPeer)
 {
     tcp::endpoint ep;
     pPeer->tPeerEp.GetEndpoint(ep);
@@ -622,7 +602,7 @@ void CStressTestMsgWorkThread::StressTestDoCallConnect()
     int64 nNeedTestCount = nPersCalloutAddrCount * nTestTimeLen / 1000 - nCompTestCount;
     if (nNeedTestCount <= 0)
     {
-        return ;
+        return;
     }
 
     vector<CBbAddr> vBbAddr;
@@ -650,17 +630,19 @@ void CStressTestMsgWorkThread::StressTestDoPeerState(time_t tmCurTime)
     uint32 nOutCount = 0;
 
     map<uint64, CStressTestNetPeer*>::iterator it;
-    for (it = mapPeer.begin(); it != mapPeer.end(); )
+    for (it = mapPeer.begin(); it != mapPeer.end();)
     {
         if (it->second)
         {
             pNetPeer = it->second;
             it++;
 
-            if (pNetPeer->fInBound) nInCount++;
-            else nOutCount++;
+            if (pNetPeer->fInBound)
+                nInCount++;
+            else
+                nOutCount++;
 
-            if(!pNetPeer->StressTestDoStateTimer(tmCurTime))
+            if (!pNetPeer->StressTestDoStateTimer(tmCurTime))
             {
                 StressTestActiveClosePeer(pNetPeer->nPeerNetId);
             }
@@ -698,12 +680,11 @@ bool CStressTestMsgWorkThread::StressTestStartConnectPeer(CBbAddr& tBbAddr)
     return true;
 }
 
-
 //-----------------------------------------------------------------------------------------------
-CStressTestNetPeer::CStressTestNetPeer(CStressTestMsgWorkThread *pMsgWorkThreadIn, CStressTestBbAddrPool *pBbAddrPoolIn, uint32 nMsgMagicIn, 
-    bool fInBoundIn, uint64 nNetIdIn, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn) : 
-    pMsgWorkThread(pMsgWorkThreadIn),pBbAddrPool(pBbAddrPoolIn),nMsgMagic(nMsgMagicIn),
-    fInBound(fInBoundIn),nPeerNetId(nNetIdIn),tPeerEp(tPeerEpIn),tLocalEp(tLocalEpIn)
+CStressTestNetPeer::CStressTestNetPeer(CStressTestMsgWorkThread* pMsgWorkThreadIn, CStressTestBbAddrPool* pBbAddrPoolIn, uint32 nMsgMagicIn,
+                                       bool fInBoundIn, uint64 nNetIdIn, CMthNetEndpoint& tPeerEpIn, CMthNetEndpoint& tLocalEpIn)
+  : pMsgWorkThread(pMsgWorkThreadIn), pBbAddrPool(pBbAddrPoolIn), nMsgMagic(nMsgMagicIn),
+    fInBound(fInBoundIn), nPeerNetId(nNetIdIn), tPeerEp(tPeerEpIn), tLocalEp(tLocalEpIn)
 {
     nVersion = 0;
     nService = 0;
@@ -728,9 +709,9 @@ CStressTestNetPeer::~CStressTestNetPeer()
 {
 }
 
-bool CStressTestNetPeer::StressTestDoRecvPacket(CMthNetPackData *pPackData)
+bool CStressTestNetPeer::StressTestDoRecvPacket(CMthNetPackData* pPackData)
 {
-    if (pPackData == NULL || pPackData->GetDataBuf() == NULL || pPackData->GetDataLen() == 0 )
+    if (pPackData == NULL || pPackData->GetDataBuf() == NULL || pPackData->GetDataLen() == 0)
     {
         blockhead::StdError(__PRETTY_FUNCTION__, "Param error.");
         return false;
@@ -769,7 +750,6 @@ bool CStressTestNetPeer::StressTestDoOutBoundConnectSuccess(CMthNetEndpoint& tLo
     return true;
 }
 
-
 //------------------------------------------------------------------------------------
 bool CStressTestNetPeer::StressTestDoPeerPacket()
 {
@@ -778,7 +758,8 @@ bool CStressTestNetPeer::StressTestDoPeerPacket()
     {
     case BBPROTO_CMD_HELLO:
     {
-        try{
+        try
+        {
             blockhead::StdDebug("CFLOW", "Recv msg: BBPROTO_CMD_HELLO");
             if (nVersion != 0)
             {
@@ -929,7 +910,7 @@ bool CStressTestNetPeer::StressTestDoPeerPacket()
             }
         }
         fGetPeerAddress = true;
-        
+
         if (ePeerState == DNP_E_ST_PEER_STATE_IN_WAIT_ADDRESS_RSP)
         {
             StressTestModifyPeerState(DNP_E_ST_PEER_STATE_IN_COMPLETE);
@@ -952,7 +933,6 @@ bool CStressTestNetPeer::StressTestDoPeerPacket()
 
     return true;
 }
-
 
 void CStressTestNetPeer::StressTestModifyPeerState(DNP_E_PEER_STATE eState)
 {
@@ -1040,7 +1020,6 @@ bool CStressTestNetPeer::StressTestDoStateTimer(time_t tmCurTime)
     return true;
 }
 
-
 //-----------------------------------------------------------------------------------
 bool CStressTestNetPeer::StressTestSendMsgHello()
 {
@@ -1053,7 +1032,7 @@ bool CStressTestNetPeer::StressTestSendMsgHello()
     uint64 nNonce = nPeerNetId;
     int64 nTime = pBbAddrPool->StressTestGetNetTime();
     int nHeight = pBbAddrPool->StressTestGetConfidentHeight();
-    ssPayload << iLocalVersion << nLocalService << nTime << nNonce << strLocalSubVer << nHeight; 
+    ssPayload << iLocalVersion << nLocalService << nTime << nNonce << strLocalSubVer << nHeight;
 
     nSendHelloTime = GetTime();
     return StressTestSendMessage(BBPROTO_CHN_NETWORK, BBPROTO_CMD_HELLO, ssPayload);
@@ -1086,11 +1065,9 @@ bool CStressTestNetPeer::StressTestSendMsgAddress()
     return StressTestSendMessage(BBPROTO_CHN_NETWORK, BBPROTO_CMD_ADDRESS, ssPayload);
 }
 
-
-
 //-------------------------------------------------------------------------------------
-CStressTestBbAddrPool::CStressTestBbAddrPool(CStressTestConfig *pCfg, CNetWorkService *pNetWS) : 
-    pTestCfg(pCfg),pNetWorkService(pNetWS)
+CStressTestBbAddrPool::CStressTestBbAddrPool(CStressTestConfig* pCfg, CNetWorkService* pNetWS)
+  : pTestCfg(pCfg), pNetWorkService(pNetWS)
 {
     nCurConnectCount = 0;
     nCurGetPortPos = 0;
@@ -1098,7 +1075,6 @@ CStressTestBbAddrPool::CStressTestBbAddrPool(CStressTestConfig *pCfg, CNetWorkSe
 
 CStressTestBbAddrPool::~CStressTestBbAddrPool()
 {
-
 }
 
 bool CStressTestBbAddrPool::StressTestStartAllTcpListen()
@@ -1119,7 +1095,7 @@ bool CStressTestBbAddrPool::StressTestStartAllTcpListen()
             if (pTestCfg->iLocalIpType == CMthNetIp::MNI_IPV4)
             {
                 //Start ipv4 listen
-                if ((nListenNetId=pNetWorkService->AddTcpIPV4Listen(0)) == 0)
+                if ((nListenNetId = pNetWorkService->AddTcpIPV4Listen(0)) == 0)
                 {
                     blockhead::StdError(__PRETTY_FUNCTION__, "Start ipv4 tcp listen fail, port: 0");
                     return false;
@@ -1128,7 +1104,7 @@ bool CStressTestBbAddrPool::StressTestStartAllTcpListen()
             else if (pTestCfg->iLocalIpType == CMthNetIp::MNI_IPV6)
             {
                 //Start ipv6 listen
-                if ((nListenNetId=pNetWorkService->AddTcpIPV6Listen(0)) == 0)
+                if ((nListenNetId = pNetWorkService->AddTcpIPV6Listen(0)) == 0)
                 {
                     blockhead::StdError(__PRETTY_FUNCTION__, "Start ipv6 tcp listen fail, port: 0");
                     return false;
@@ -1193,7 +1169,7 @@ bool CStressTestBbAddrPool::StressTestAddRecvAddr(tcp::endpoint& ep, uint64 nSer
     return true;
 }
 
-bool CStressTestBbAddrPool::StressTestUpdateHeight(CMthNetEndpoint &ep, int iHeight)
+bool CStressTestBbAddrPool::StressTestUpdateHeight(CMthNetEndpoint& ep, int iHeight)
 {
     return true;
 }
@@ -1204,7 +1180,7 @@ void CStressTestBbAddrPool::StressTestGetGoodAddressList(vector<CAddress>& vAddr
 
     uint64 nService = NODE_NETWORK;
 
-    for (int i=0; i<pTestCfg->nPerPortCount; i++)
+    for (int i = 0; i < pTestCfg->nPerPortCount; i++)
     {
         uint16 nListenPort = nListenPortTable[nCurGetPortPos];
         nCurGetPortPos = (nCurGetPortPos + 1) % pTestCfg->nListenPortCount;
@@ -1228,7 +1204,7 @@ bool CStressTestBbAddrPool::StressTestGetCallConnectAddrList(vector<CBbAddr>& vB
     CBbAddr tAddr;
     tAddr.SetBbAddr(pTestCfg->sConnectIpaddr, pTestCfg->nConnectPort, nService, 0);
 
-    for (int i=0; i<nGetAddrCount; i++)
+    for (int i = 0; i < nGetAddrCount; i++)
     {
         vBbAddr.push_back(CBbAddr(tAddr));
 
@@ -1246,21 +1222,19 @@ int64 CStressTestBbAddrPool::StressTestGetNetTime()
     return GetTime();
 }
 
-bool CStressTestBbAddrPool::StressTestUpdateNetTime(const boost::asio::ip::address& address,int64 nTimeDelta)
+bool CStressTestBbAddrPool::StressTestUpdateNetTime(const boost::asio::ip::address& address, int64 nTimeDelta)
 {
     return true;
 }
 
 void CStressTestBbAddrPool::StressTestSetConfidentHeight(uint32 nHeight)
 {
-
 }
 
 uint32 CStressTestBbAddrPool::StressTestGetConfidentHeight()
 {
     return 1000;
 }
-
 
 //--------------------------------------------------------------------------------------
 CStressTestService::CStressTestService()
@@ -1291,7 +1265,7 @@ CStressTestService::~CStressTestService()
     }
 }
 
-bool CStressTestService::StartService(int argc, char *argv[])
+bool CStressTestService::StartService(int argc, char* argv[])
 {
     if (!tStressTestCfg.ReadConfig(argc, argv, GetDefaultDataDir(), "dnseedstresstest.conf"))
     {
@@ -1384,7 +1358,7 @@ void CStressTestService::StopService()
     {
         pNetWorkService->StopService();
     }
-    
+
     if (pNetWorkService)
     {
         delete pNetWorkService;
@@ -1404,21 +1378,21 @@ void CStressTestService::StopService()
 
 boost::filesystem::path CStressTestService::GetDefaultDataDir()
 {
-    // Windows: C:\Documents and Settings\username\Local Settings\Application Data\bigdnseed
-    // Mac: ~/Library/Application Support/bigdnseed
-    // Unix: ~/.bigdnseed
+    // Windows: C:\Documents and Settings\username\Local Settings\Application Data\mkfdnseed
+    // Mac: ~/Library/Application Support/mkfdnseed
+    // Unix: ~/.mkfdnseed
 
 #ifdef WIN32
     // Windows
     char pszPath[MAX_PATH] = "";
     if (SHGetSpecialFolderPathA(NULL, pszPath, CSIDL_LOCAL_APPDATA, true))
     {
-        return path(pszPath) / "bigdnseed";
+        return path(pszPath) / "mkfdnseed";
     }
-    return path("C:\\bigdnseed");
+    return path("C:\\mkfdnseed");
 #else
     boost::filesystem::path pathRet;
-    char *pszHome = getenv("HOME");
+    char* pszHome = getenv("HOME");
     if (pszHome == NULL || strlen(pszHome) == 0)
     {
         pathRet = boost::filesystem::path("/");
@@ -1431,10 +1405,10 @@ boost::filesystem::path CStressTestService::GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     create_directory(pathRet);
-    return pathRet / "bigdnseed";
+    return pathRet / "mkfdnseed";
 #else
     // Unix
-    return pathRet / ".bigdnseed";
+    return pathRet / ".mkfdnseed";
 #endif
 #endif
 }
@@ -1488,7 +1462,7 @@ void CStressTestService::Stat()
 
     pWorkThreadPool->StatData(tStatData);
 
-    char buf[128] = {0};
+    char buf[128] = { 0 };
 
     blockhead::StdLog("STAT", "======================================================");
 
@@ -1511,11 +1485,10 @@ void CStressTestService::Stat()
     tPrevStatData = tStatData;
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 // main_stress_test
 
-int main_stress_test(int argc, char **argv)
+int main_stress_test(int argc, char** argv)
 {
     CStressTestService tStressTest;
     if (!tStressTest.StartService(argc, argv))
@@ -1527,7 +1500,7 @@ int main_stress_test(int argc, char **argv)
     blockhead::StdLog("MAIN", "Start stress test success.");
 
     std::string strInput;
-    while(1)
+    while (1)
     {
         std::getline(std::cin, strInput);
         if (strInput == "quit")
@@ -1541,4 +1514,3 @@ int main_stress_test(int argc, char **argv)
 }
 
 } //namespace stresstest
-

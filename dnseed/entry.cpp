@@ -47,7 +47,7 @@ CBbEntry::~CBbEntry()
 
 bool CBbEntry::Initialize(int argc, char* argv[])
 {
-    if (!tDnseedCfg.ReadConfig(argc, argv, GetDefaultDataDir(), "bigdnseed.conf"))
+    if (!tDnseedCfg.ReadConfig(argc, argv, GetDefaultDataDir(), "mkfdnseed.conf"))
     {
         cerr << "Failed read config.\n";
         return false;
@@ -70,7 +70,7 @@ bool CBbEntry::Initialize(int argc, char* argv[])
     // version
     if (tDnseedCfg.fVersion)
     {
-        cout << "BigDNSeed version is v" << BB_VERSION_STR << endl;
+        cout << "MkfDNSeed version is v" << BB_VERSION_STR << endl;
         return false;
     }
 
@@ -111,19 +111,31 @@ bool CBbEntry::Initialize(int argc, char* argv[])
         {
             return false;
         }
-        cout << "bigdnseed server starting\n";
+        cout << "mkfdnseed server starting\n";
     }
 
     if (!TryLockFile((tDnseedCfg.pathData / ".lock").string()))
     {
         cerr << "Cannot obtain a lock on data directory " << tDnseedCfg.pathData << "\n"
-             << "bigdnseed is probably already running.\n";
+             << "mkfdnseed is probably already running.\n";
         return false;
     }
 
     if (!InitLog(pathData, tDnseedCfg.fDebug, tDnseedCfg.fDaemon, tDnseedCfg.nLogFileSize, tDnseedCfg.nLogHistorySize))
     {
         cerr << "Failed to open log file : " << (pathData / "bigbang.log") << "\n";
+        return false;
+    }
+
+    //----------------------------------------------------------------------
+    if (tDnseedCfg.strGenesisBlockHash.empty())
+    {
+        cout << "genesisblock is empty!" << endl;
+        return false;
+    }
+    if (tDnseedCfg.hashGenesisBlock.SetHex(tDnseedCfg.strGenesisBlockHash) != tDnseedCfg.strGenesisBlockHash.size())
+    {
+        cout << "genesisblock is error!" << endl;
         return false;
     }
 
@@ -219,7 +231,7 @@ void CBbEntry::HandleTimer(const boost::system::error_code& err)
 
         if (tDnseedCfg.fDaemon)
         {
-            FILE* file = fopen((tDnseedCfg.pathData / "bigdnseed.pid").string().c_str(), "r");
+            FILE* file = fopen((tDnseedCfg.pathData / "mkfdnseed.pid").string().c_str(), "r");
             if (file == NULL)
             {
                 Stop();
@@ -234,18 +246,18 @@ void CBbEntry::HandleTimer(const boost::system::error_code& err)
 
 path CBbEntry::GetDefaultDataDir()
 {
-    // Windows: C:\Documents and Settings\username\Local Settings\Application Data\bigdnseed
-    // Mac: ~/Library/Application Support/bigdnseed
-    // Unix: ~/.bigdnseed
+    // Windows: C:\Documents and Settings\username\Local Settings\Application Data\mkfdnseed
+    // Mac: ~/Library/Application Support/mkfdnseed
+    // Unix: ~/.mkfdnseed
 
 #ifdef WIN32
     // Windows
     char pszPath[MAX_PATH] = "";
     if (SHGetSpecialFolderPathA(NULL, pszPath, CSIDL_LOCAL_APPDATA, true))
     {
-        return path(pszPath) / "bigdnseed";
+        return path(pszPath) / "mkfdnseed";
     }
-    return path("C:\\bigdnseed");
+    return path("C:\\mkfdnseed");
 #else
     path pathRet;
     char* pszHome = getenv("HOME");
@@ -261,10 +273,10 @@ path CBbEntry::GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     create_directory(pathRet);
-    return pathRet / "bigdnseed";
+    return pathRet / "mkfdnseed";
 #else
     // Unix
-    return pathRet / ".bigdnseed";
+    return pathRet / ".mkfdnseed";
 #endif
 #endif
 }
@@ -276,7 +288,7 @@ void CBbEntry::PurgeStorage()
     if (!TryLockFile((pathData / ".lock").string()))
     {
         cerr << "Cannot obtain a lock on data directory " << pathData << "\n"
-             << "BigDNSeed is probably already running.\n";
+             << "MkfDNSeed is probably already running.\n";
         return;
     }
 
@@ -303,7 +315,7 @@ bool CBbEntry::RunInBackground(const path& pathData)
     }
     if (pid > 0)
     {
-        FILE* file = fopen((pathData / "bigdnseed.pid").string().c_str(), "w");
+        FILE* file = fopen((pathData / "mkfdnseed.pid").string().c_str(), "w");
         if (file)
         {
             fprintf(file, "%d\n", pid);
@@ -334,7 +346,7 @@ bool CBbEntry::RunInBackground(const path& pathData)
 void CBbEntry::ExitBackground(const path& pathData)
 {
 #ifndef WIN32
-    boost::filesystem::remove(pathData / "bigdnseed.pid");
+    boost::filesystem::remove(pathData / "mkfdnseed.pid");
 #endif
 }
 

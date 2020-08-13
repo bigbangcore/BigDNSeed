@@ -100,6 +100,8 @@ public:
 
     boost::program_options::options_description defaultDesc;
     set<string> setTrustAddr;
+
+    string strGenesisBlockHash;
 };
 
 class CRunStatData

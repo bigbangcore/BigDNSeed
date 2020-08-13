@@ -10,11 +10,11 @@
 #include <sstream>
 #include <string>
 
-#define BB_VERSION_NAME "BigDNSeed"
+#define BB_VERSION_NAME "MkfDNSeed"
 
 #define BB_VERSION_MAJOR 1
 #define BB_VERSION_MINOR 0
-#define BB_VERSION_REVISION 2
+#define BB_VERSION_REVISION 3
 
 std::string FormatVersion(int nVersion);
 

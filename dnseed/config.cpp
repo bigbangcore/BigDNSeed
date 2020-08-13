@@ -44,9 +44,9 @@ CDnseedConfig::CDnseedConfig()
     tDbCfg.iDbType = DBC_DBTYPE_MYSQL;
     tDbCfg.sDbIp = "localhost";
     tDbCfg.usDbPort = 3306;
-    tDbCfg.sDbName = "bigdnseedmkf";
-    tDbCfg.sDbUser = "bigdnseed";
-    tDbCfg.sDbPwd = "bigdnseed";
+    tDbCfg.sDbName = "mkfdnseed";
+    tDbCfg.sDbUser = "mkfdnseed";
+    tDbCfg.sDbPwd = "mkfdnseed";
 
     tNetCfg.tListenEpIPV4.SetAddrPort("0.0.0.0", NMS_CFG_LISTEN_PORT);
     tNetCfg.tListenEpIPV6.SetAddrPort("::", NMS_CFG_LISTEN_PORT);
@@ -63,7 +63,6 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
     pathData = pathRoot;
 
     po::variables_map vm;
-    string strGenesisBlockHash;
     string strDNSeedListenAddrV4;
     string strDNSeedListenAddrV6;
     unsigned short usDNSeedListenPort;
@@ -80,7 +79,7 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
         //testnet
         ("testnet", po::value<bool>(&fTestNet)->default_value(false), "Use the test network")
         //version
-        ("version", po::value<bool>(&fVersion)->default_value(false), "Get bigdnseed version")
+        ("version", po::value<bool>(&fVersion)->default_value(false), "Get mkfdnseed version")
         //purge
         ("purge", po::value<bool>(&fPurge)->default_value(false), "Purge database and blockfile")
         //debug
@@ -104,11 +103,11 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
         //dbport
         ("dbport", po::value<unsigned short>(&tDbCfg.usDbPort)->default_value(3306), "Set mysql port (default: 3306)")
         //dbname
-        ("dbname", po::value<string>(&tDbCfg.sDbName)->default_value("bigdnseedmkf"), "Set mysql database name (default: bigdnseedmkf)")
+        ("dbname", po::value<string>(&tDbCfg.sDbName)->default_value("mkfdnseed"), "Set mysql database name (default: mkfdnseed)")
         //dbuser
-        ("dbuser", po::value<string>(&tDbCfg.sDbUser)->default_value("bigdnseed"), "Set mysql user's name (default: bigdnseed)")
+        ("dbuser", po::value<string>(&tDbCfg.sDbUser)->default_value("mkfdnseed"), "Set mysql user's name (default: mkfdnseed)")
         //dbpass
-        ("dbpass", po::value<string>(&tDbCfg.sDbPwd)->default_value("bigdnseed"), "Set mysql user's password (default: bigdnseed)")
+        ("dbpass", po::value<string>(&tDbCfg.sDbPwd)->default_value("mkfdnseed"), "Set mysql user's password (default: mkfdnseed)")
         //listenaddrv4
         ("listenaddrv4", po::value<string>(&strDNSeedListenAddrV4)->default_value("0.0.0.0"), "Listen for connections on <ipv4>")
         //listenaddrv6
@@ -178,17 +177,6 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
     }
 
     //----------------------------------------------------------------------------------------------------------
-    if (strGenesisBlockHash.empty())
-    {
-        cout << "genesisblock is empty!" << endl;
-        return false;
-    }
-    if (hashGenesisBlock.SetHex(strGenesisBlockHash) != strGenesisBlockHash.size())
-    {
-        cout << "genesisblock is error!" << endl;
-        return false;
-    }
-
     tNetCfg.tListenEpIPV4.SetAddrPort(strDNSeedListenAddrV4, usDNSeedListenPort);
     tNetCfg.tListenEpIPV6.SetAddrPort(strDNSeedListenAddrV6, usDNSeedListenPort);
     nMagicNum = (fTestNet ? TESTNET_MAGICNUM : MAINNET_MAGICNUM);

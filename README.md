@@ -14,23 +14,25 @@ sudo apt install -y libssl1.0-dev<br>
 # git clone and build
 git clone https://github.com/bigbangcore/BigDNSeed.git<br>
 cd BigDNSeed<br>
+git checkout mkf-master<br>
 ./INSTALL.sh<br>
-bigdnseed -help<br>
+mkfdnseed -version<br>
 <br>
 <br>
 # Mysql setup
 #Login mysql as root,run sql command as follows:<br>
+#mysql -uroot -p<br>
 <br>
-create database bigdnseedmkf;<br>
-grant all privileges on bigdnseedmkf.* to bigdnseed@localhost identified by 'bigdnseed';<br>
+create database mkfdnseed;<br>
+grant all privileges on mkfdnseed.* to mkfdnseed@localhost identified by 'mkfdnseed';<br>
 flush privileges;<br>
 <br>
 #then,quit from mysql prompt:<br>
 quit<br>
 <br>
 #Finally,run command for restarting mysql service on terminal:<br>
-service mysql restart<br>
+sudo service mysql restart<br>
 <br>
 # Run
-bigdnseed
+mkfdnseed
 
