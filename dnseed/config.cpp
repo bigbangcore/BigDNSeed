@@ -95,7 +95,7 @@ bool CDnseedConfig::ReadConfig(int argc, char* argv[],
         //workthreadcount
         ("workthreadcount", po::value<unsigned int>(&nWorkThreadCount)->default_value(0), "Work thread number(0 is the number of CPUs)")
         //genesisblock
-        ("genesisblock", po::value<string>(&strGenesisBlockHash)->default_value(""), "Genesis block hash")
+        ("genesisblock", po::value<string>(&strGenesisBlockHash)->default_value("000000004343748c92739af838483eb9395b3a222816e6c072dae716eafe59fa"), "Genesis block hash")
         //allowalladdr
         ("allowalladdr", po::value<bool>(&fAllowAllAddr)->default_value(false), "Allow all address")
         //dbhost
@@ -237,7 +237,7 @@ void CDnseedConfig::ListConfig()
     cout << "workdir: " << sWorkDir << endl;
     cout << "workthreadcount: " << nWorkThreadCount << endl;
     cout << "allowalladdr: " << (fAllowAllAddr ? "true" : "false") << endl;
-    cout << "genesisblock: " << hashGenesisBlock.GetHex() << endl;
+    cout << "genesisblock: " << strGenesisBlockHash << endl;
     cout << "dbhost: " << tDbCfg.sDbIp << endl;
     cout << "dbport: " << tDbCfg.usDbPort << endl;
     cout << "dbname: " << tDbCfg.sDbName << endl;
